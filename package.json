@@ -15,9 +15,13 @@
     "@remix-run/node": "^2.8.0",
     "@remix-run/react": "^2.8.0",
     "@remix-run/serve": "^2.8.0",
+    "clsx": "latest",
     "isbot": "^4.1.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.12",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.8.0",
@@ -31,6 +35,7 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "tailwindcss": "latest",
     "typescript": "^5.1.6"
   },
   "engines": {

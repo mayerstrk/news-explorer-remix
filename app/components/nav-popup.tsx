@@ -1,7 +1,6 @@
 import clsx from 'clsx'
-import { NavMenu } from './nav-bar'
-import { usePopup } from '~/hooks/usePopup'
-import { PopupName } from '~/stores/usePopupStore'
+import { NavItems } from './nav-bar'
+import { usePopup, PopupName } from '~/hooks/usePopup'
 
 export function NavMobileMenu() {
   const { isOpen } = usePopup(PopupName.navMenu)
@@ -15,7 +14,7 @@ export function NavMobileMenu() {
         },
       )}
     >
-      <NavMenu />
+      <NavItems />
     </div>
   )
 }

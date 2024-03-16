@@ -1,7 +1,3 @@
-import { redirect } from '@remix-run/node'
+import { appRedirect } from '~/utils/remix'
 
-export const loader = () => {
-  return redirect('/home')
-}
-
-export default function Index() {}
+export const loader = () => appRedirect('/home')

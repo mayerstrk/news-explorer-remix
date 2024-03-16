@@ -1,5 +1,10 @@
-export type Paths = '/home' | '/saved-articles'
+export type Path =
+  | '/home'
+  | '/home/sign-in'
+  | '/home/sign-up'
+  | '/saved-articles'
+export type PopupName = 'sign-in' | 'sign-up' | 'nav-menu'
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-export type PublicEndpoint = '/signin' | '/signup' | '/signout'
-export type ProtectedEndpoint = '/users/me'
-export type ApiEndpoint = PublicEndpoint | ProtectedEndpoint
+export type ApiPublicEndpoint = '/signin' | '/signup' | '/signout'
+export type ApiProtectedEndpoint = '/users/me'
+export type ApiEndpoint = ApiPublicEndpoint | ApiProtectedEndpoint

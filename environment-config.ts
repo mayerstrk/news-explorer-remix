@@ -9,8 +9,7 @@ const enum EnvironmentVariables {
 
 const environmentVariables = {
   [EnvironmentVariables.API_URL]:
-    process.env.API_URL ||
-    'https://news-explorer-api-83c2fdf9d164.herokuapp.com/',
+    process.env.API_URL || 'http://127.0.0.1:3000',
 }
 
 export { EnvironmentVariables, environmentVariables as env }

@@ -41,12 +41,12 @@ export function HeaderSearch() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    searchTerm === '' && navigate('/home')
+    searchTerm === '' && navigate('/home', { preventScrollReset: true })
   }, [searchTerm, navigate])
 
   const debouncedNavigate = useDebouncedCallback((value: string) => {
     if (value.trim() !== '') {
-      navigate(`/home/${value}`)
+      navigate(`/home/${value}`, { preventScrollReset: true })
     }
   }, 1000)
 

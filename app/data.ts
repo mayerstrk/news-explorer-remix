@@ -34,5 +34,6 @@ export function getArticles(
   for (let i = 0; i < 10; i++) {
     articles.push(mockArticle)
   }
-  return { success: true, response: articles }
+  // return { success: true, response: articles }
+  return { success: false, response: new Response('no article') }
 }

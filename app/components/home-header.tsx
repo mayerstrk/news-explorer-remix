@@ -1,5 +1,11 @@
 import { useNavigate } from '@remix-run/react'
-import { ReactNode, useState } from 'react'
+import {
+  FormEventHandler,
+  MouseEventHandler,
+  ReactNode,
+  useEffect,
+  useState,
+} from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 
 export default function HomeHeader() {
@@ -34,6 +40,10 @@ export function HeaderSearch() {
   const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
 
+  useEffect(() => {
+    searchTerm === '' && navigate('/home')
+  }, [searchTerm, navigate])
+
   const debouncedNavigate = useDebouncedCallback((value: string) => {
     if (value.trim() !== '') {
       navigate(`/home/${value}`)
@@ -43,22 +53,30 @@ export function HeaderSearch() {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
     setSearchTerm(value)
-    debouncedNavigate(value) // Pass the current input value to the debounced function
+    debouncedNavigate(value)
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault() // Prevent the traditional form submission
-    // Navigate immediately on form submit, without waiting for the debounce
+  const handleSubmit = () => {
     if (searchTerm.trim() !== '') {
       navigate(`/home/${searchTerm}`)
     }
+  }
+
+  const handleFormSubmit: FormEventHandler = (event) => {
+    event.preventDefault()
+    handleSubmit()
+  }
+
+  const handleButtonClick: MouseEventHandler = (event) => {
+    event.preventDefault()
+    handleSubmit()
   }
 
   return (
     <div className='w-full'>
       <form
         className='relative flex flex-col gap-[16px] md:flex-row'
-        onSubmit={handleSubmit}
+        onSubmit={handleFormSubmit}
       >
         <input
           name='search-term'
@@ -70,8 +88,9 @@ export function HeaderSearch() {
           onChange={handleInputChange}
         />
         <button
-          type='submit'
+          type='button'
           className='h-[56px] w-full rounded-3xl bg-blue-600 text-[18px] text-white md:absolute md:right-0 md:w-[160px] xl:w-[168px]'
+          onClick={handleButtonClick}
         >
           Search
         </button>

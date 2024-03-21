@@ -7,32 +7,24 @@ import {
   Scripts,
   ScrollRestoration,
   json,
-  useLoaderData,
   useRouteLoaderData,
 } from '@remix-run/react'
 import styles from './tailwind.css'
-import NavBar, {
-  NavBarControls,
-  NavBarLogo,
-  NavItems,
-  NavMenuButton,
-  NavMenuMobilePopup,
-  AuthButton,
-} from './components/nav-bar'
-import { ReactNode, useEffect } from 'react'
-import HomeHeader from './components/home-header'
-import { getCurrentUser } from './services/users'
-import { useSignedInActions } from './hooks/zustand/useSignedIn'
+import NavBarMain from './components/nav-bar-main'
+import { ReactNode } from 'react'
+import { NavMobilePopup } from './components/nav-mobile-popup'
+import Footer from './components/footer'
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
 
 export const loader = async () => {
-  const { success, response: user } = await getCurrentUser()
-  if (!success) {
-    return json({ signedIn: false })
-  }
-
-  return json({ signedIn: true, user })
+  // const { success, response: user } = await getCurrentUser()
+  // if (!success) {
+  //   return json({ signedIn: false })
+  // }
+  //
+  // return json({ signedIn: true, user })
+  return json({ signedIn: true })
 }
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -59,21 +51,10 @@ export function Layout({ children }: { children: ReactNode }) {
       </head>
       {/* gobal styles here */}
       <body className='relative h-dvh w-full min-w-[240px] font-roboto'>
-        <NavBar>
-          <NavMenuMobilePopup>
-            <NavItems signedIn={signedIn} />
-            <AuthButton signedIn={signedIn} />
-          </NavMenuMobilePopup>
-          <NavBarLogo />
-          <NavBarControls>
-            <div className='hidden items-center gap-[34px] md:flex'>
-              <NavItems signedIn={signedIn} />
-              <AuthButton signedIn={signedIn} />
-            </div>
-            <NavMenuButton />
-          </NavBarControls>
-        </NavBar>
+        <NavBarMain signedIn={signedIn} />
+        <NavMobilePopup signedIn={signedIn} />
         {children}
+        <Footer />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
@@ -83,12 +64,5 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  const { signedIn } = useLoaderData<typeof loader>()
-  const { setSignedIn } = useSignedInActions()
-
-  useEffect(() => {
-    setSignedIn(signedIn)
-  }, [signedIn, setSignedIn])
-
   return <Outlet />
 }

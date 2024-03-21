@@ -32,15 +32,7 @@ export function ErrorBoundary() {
     )
   }
 
-  const errorMessage = 'Unknown error'
-
-  return (
-    <div>
-      <h1>Uh oh ...</h1>
-      <p>Something went wrong.</p>
-      <pre>{errorMessage}</pre>
-    </div>
-  )
+  return <NoArticle />
 }
 
 export default function SearchResults() {
@@ -49,7 +41,7 @@ export default function SearchResults() {
   return (
     <Suspense fallback={<Loading />}>
       <section className='bg-[#F5F6F7] px-[16px] py-[40px]'>
-        <h2 className='mb-[56px] font-robotoSlab text-[30px] leading-[34px] text-[#1A1B22]'>
+        <h2 className='mb-[58px] font-robotoSlab text-[30px] leading-[34px] text-[#1A1B22]'>
           Search results
         </h2>
         <ul className='grid w-full grid-cols-1 gap-[24px] md:grid-cols-2 lg:grid-cols-3'>
@@ -98,5 +90,19 @@ function Loading() {
       <div className='h-[74px] w-[74px] bg-[url("../public/images/Ellipse.svg")] bg-cover '></div>
       <p className='text-[18px] text-[#b6bcbf]'>Searching for news...</p>
     </div>
+  )
+}
+
+function NoArticle() {
+  return (
+    <section className='flex flex-col items-center gap-[24px] bg-[#F5F6F7] px-[16px] pb-[80px] pt-[86px] align-middle'>
+      <div className='h-[74px] w-[74px] bg-[url("../public/images/not-found_v1.svg")] bg-cover '></div>
+      <p className='font-robotoSlab text-[26px] leading-[30px] text-[#1A1B22]'>
+        Nothing Found
+      </p>
+      <p className='w-[65%] max-w-[356] text-center text-[18px] text-[#b6bcbf]'>
+        Sorry, but nothing matches your search terms
+      </p>
+    </section>
   )
 }

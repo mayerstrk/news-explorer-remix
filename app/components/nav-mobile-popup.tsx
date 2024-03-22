@@ -1,45 +1,33 @@
-import { usePopupToggle, usePopupVisibility } from '~/hooks/zustand/use-popup'
+import { usePopupToggle } from '~/hooks/zustand/use-popup'
 import NavBarLayout, {
   AuthButton,
   NavBarLogo,
   NavItemsLayout,
   NavRouteItems,
 } from './nav-atoms'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode } from 'react'
 import { Size } from '~/utils/enums'
 import { PopupLayout } from './popup-atoms'
 
 export function NavMobilePopup({ signedIn }: { signedIn: boolean }) {
-  const [visible, setIsVisible] = useState(false)
-  const isOpen = usePopupVisibility('nav-menu')
-
-  console.log('nav-popup rendered')
-  console.log('after render: ', visible)
-
-  useEffect(() => {
-    setIsVisible(isOpen)
-  }, [isOpen, setIsVisible])
-
-  return visible ? (
+  return (
     <NavMobilePopupLayout>
       <NavBarLayout>
-        <NavBarLogo />
+        <NavBarLogo color='white' />
         <NavBarPopupCloseButton />
       </NavBarLayout>
       <NavItemsLayout>
-        <NavRouteItems signedIn={signedIn} />
-        <AuthButton signedIn={signedIn} size={Size.sm} />
+        <NavRouteItems signedIn={signedIn} color='white' />
+        <AuthButton signedIn={signedIn} size={Size.sm} color='white' />
       </NavItemsLayout>
     </NavMobilePopupLayout>
-  ) : (
-    <></>
   )
 }
 
 export function NavMobilePopupLayout({ children }: { children: ReactNode }) {
   return (
     <PopupLayout name='nav-menu'>
-      <div className='absolute left-0 right-0 top-0 z-30 w-full bg-[#1A1B22] pt-[var(--navbar-h)] text-white '>
+      <div className=' z-50 bg-[#1A1B22] pt-[var(--navbar-h)] text-white '>
         {children}
       </div>
     </PopupLayout>

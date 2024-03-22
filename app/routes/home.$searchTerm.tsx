@@ -2,21 +2,25 @@ import { LoaderFunctionArgs, json } from '@remix-run/node'
 import {
   isRouteErrorResponse,
   useLoaderData,
+  useNavigate,
   useRouteError,
 } from '@remix-run/react'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { article, getArticles as getMockArticles } from '~/data'
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.searchTerm, 'Missing searchTerm param')
-  const { success, response } = getMockArticles()
+  const url = new URL(request.url)
+  const amount = url.searchParams.get('amount') || '6'
+
+  const { success, response } = getMockArticles(Number(amount))
 
   if (!success) {
     throw new Error(response.statusText, { cause: response })
   }
 
-  return json(response)
+  return json({ response, amount, currentPath: url.pathname })
 }
 
 export function ErrorBoundary() {
@@ -36,11 +40,26 @@ export function ErrorBoundary() {
 }
 
 export default function SearchResults() {
-  const articles = useLoaderData<typeof loader>()
+  const {
+    response: articles,
+    amount,
+    currentPath,
+  } = useLoaderData<typeof loader>()
+  const navigate = useNavigate()
+  const searchResultsRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (searchResultsRef.current) {
+      searchResultsRef.current.focus()
+    }
+  }, [searchResultsRef])
 
   return (
     <Suspense fallback={<Loading />}>
-      <section className='bg-[#F5F6F7] px-[16px] py-[40px]'>
+      <section
+        ref={searchResultsRef}
+        className='bg-[#F5F6F7] px-[16px] py-[40px]'
+      >
         <h2 className='mb-[58px] font-robotoSlab text-[30px] leading-[34px] text-[#1A1B22]'>
           Search results
         </h2>
@@ -49,6 +68,17 @@ export default function SearchResults() {
             <ArticleCard data={article} key={article._id} />
           ))}
         </ul>
+        <button
+          type='button'
+          onClick={() =>
+            navigate(`${currentPath}?amount=${Number(amount) + 6}`, {
+              preventScrollReset: true,
+              replace: true,
+            })
+          }
+        >
+          Show More
+        </button>
       </section>
     </Suspense>
   )

@@ -20,6 +20,7 @@ export type article = typeof mockArticle
  *                     On error, returns an object with success flag and error response.
  */
 export function getArticles(
+  amount: number = 5,
   willReturnError = false,
 ):
   | { success: true; response: (typeof mockArticle)[] }
@@ -31,9 +32,9 @@ export function getArticles(
     }
   }
   const articles = []
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < amount; i++) {
     articles.push(mockArticle)
   }
-  // return { success: true, response: articles }
-  return { success: false, response: new Response('no article') }
+  return { success: true, response: articles }
+  // return { success: false, response: new Response('no article') }
 }

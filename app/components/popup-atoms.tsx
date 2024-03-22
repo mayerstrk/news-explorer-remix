@@ -35,18 +35,19 @@ export function PopupLayout({
   return (
     <div
       className={clsx(
-        'absolute inset-0 transition-all duration-300 md:hidden',
+        'fixed inset-0 z-30 flex flex-col transition-all duration-300 md:hidden',
         {
           'flex-col opacity-100': isOpen,
-          'opacity-0': !isOpen,
+          'hidden opacity-0': !isOpen,
         },
       )}
     >
+      {children}
+
       <div
         ref={overlayRef}
-        className='relative z-30 h-full w-full bg-black opacity-50 md:hidden'
+        className=' w-full flex-grow bg-black opacity-50 md:hidden'
       ></div>
-      {children}
     </div>
   )
 }

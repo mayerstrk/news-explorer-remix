@@ -3,9 +3,10 @@ import clsx from 'clsx'
 import { ReactNode, useEffect } from 'react'
 import { useAppNavigate } from '~/hooks/remix'
 import { usePopupToggle, usePopupVisibility } from '~/hooks/zustand/use-popup'
-import { signOut } from '~/services/users'
 import { Size } from '~/utils/enums'
 import { Route } from '~/utils/string-unions'
+
+type NavBarColorScheme = 'white' | 'black'
 
 export default function NavBarLayout({ children }: { children: ReactNode }) {
   return (
@@ -15,9 +16,11 @@ export default function NavBarLayout({ children }: { children: ReactNode }) {
   )
 }
 
-export function NavBarLogo() {
+export function NavBarLogo({ color }: { color: NavBarColorScheme }) {
   return (
-    <h2 className='h-fit text-center align-middle font-robotoSlab text-[16px] font-bold leading-[24px] text-white md:text-[20px]'>
+    <h2
+      className={`leading-[24px]md:text-[20px] h-fit text-center align-middle font-robotoSlab text-[16px] text-${color} font-bold`}
+    >
       NewsExplorer
     </h2>
   )
@@ -57,29 +60,49 @@ export function NavItemsLayout({ children }: { children: ReactNode }) {
   )
 }
 
-export function NavRouteItems({ signedIn }: { signedIn: boolean }) {
+export function NavRouteItems({
+  signedIn,
+  color,
+}: {
+  signedIn: boolean
+  color: NavBarColorScheme
+}) {
   console.log('signd in: ', signedIn)
   return (
     <>
-      <NavItem to={'/home'} text='Home' />
-      {signedIn && <NavItem to={'/saved-articles'} text='Saved' />}
+      <NavItem to={'/home'} text='Home' color={color} />
+      {signedIn && (
+        <NavItem to={'/saved-articles'} text='Saved' color={color} />
+      )}
     </>
   )
 }
 
-export function NavItem({ to, text }: { to: Route; text: string }) {
+export function NavItem({
+  to,
+  text,
+  color,
+}: {
+  to: Route
+  text: string
+  color: NavBarColorScheme
+}) {
   const location = useLocation()
+  const toggle = usePopupToggle('nav-menu')
   return (
     <li
       className={clsx(
         'box-content h-full text-center leading-[56px] md:w-[69px] md:leading-[var(--navbar-h-md)] xl:w-[60px] xl:leading-[var(--navbar-h-xl)]',
         {
-          'hidden md:list-item md:border-b-[4px] md:border-white':
-            location.pathname === to,
+          'hidden md:list-item md:border-b-[4px]': location.pathname === to,
+          'text-white md:border-white': color === 'white',
+          'text-black md:border-black': color == 'black',
         },
       )}
     >
-      <Link to={to}>{text}</Link>
+      <Link onClick={toggle} to={to}>
+        {text}
+      </Link>
     </li>
   )
 }
@@ -87,9 +110,11 @@ export function NavItem({ to, text }: { to: Route; text: string }) {
 export function AuthButton({
   signedIn,
   size,
+  color,
 }: {
   signedIn: boolean
   size: Size
+  color: NavBarColorScheme
 }) {
   const navigate = useAppNavigate()
 
@@ -106,9 +131,11 @@ export function AuthButton({
   return (
     <button
       className={clsx(
-        'mx-auto h-[56px] w-full  rounded-full border-[1px] border-white text-[18px] font-[18px] font-medium leading-[24px] text-white  md:h-[40px] md:w-[152px] md:text-[16px] xl:h-[48px] xl:w-[176px]',
+        'mx-auto h-[56px] w-full  rounded-full border-[1px] text-[18px] font-[18px] leading-[24px] md:h-[40px] md:w-[152px] md:text-[16px] xl:h-[48px] xl:w-[176px]',
         {
           hidden: size !== Size.sm,
+          'border-white text-white': color === 'white',
+          'border-black text-black': color === 'black',
         },
       )}
       onClick={handleClick}

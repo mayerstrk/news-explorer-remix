@@ -39,30 +39,29 @@ export function HeaderSearch() {
 
   const navigate = useNavigate()
 
-  useEffect(() => {
-    searchTerm === '' && navigate('/home', { preventScrollReset: true })
-  }, [searchTerm, navigate])
-
   const handleSubmit = () => {
-    navigate(`/home/search/${searchTerm}?amount=6`, {
-      preventScrollReset: true,
-    })
+    if (searchTerm.trim() === '') {
+      navigate('/home', { preventScrollReset: true })
+    } else {
+      navigate(`/home/search/${searchTerm}?amount=6`, {
+        preventScrollReset: true,
+      })
+    }
   }
-
   const handleFormSubmit: FormEventHandler = (event) => {
     event.preventDefault()
     handleSubmit()
   }
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value
+    setSearchTerm(value.trim())
+    debouncedNavigate()
+  }
+
   const debouncedNavigate = useDebouncedCallback(() => {
     handleSubmit()
   }, 400)
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value
-    setSearchTerm(value)
-    debouncedNavigate()
-  }
 
   return (
     <div className='w-full'>

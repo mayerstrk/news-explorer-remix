@@ -1,7 +1,6 @@
 import type { LinksFunction } from '@remix-run/node'
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -15,6 +14,7 @@ import { ReactNode } from 'react'
 import { NavMobilePopup } from './root-layout-components/nav-mobile-popup'
 import Footer from './root-layout-components/footer'
 import SignInPopup from './root-layout-components/sign-in-popup'
+import SignUpPopup from './root-layout-components/sign-up-popup'
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
 
@@ -55,11 +55,11 @@ export function Layout({ children }: { children: ReactNode }) {
         <NavBarMain signedIn={signedIn} />
         <NavMobilePopup signedIn={signedIn} />
         <SignInPopup />
+        <SignUpPopup />
         {children}
         <Footer />
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   )

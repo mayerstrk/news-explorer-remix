@@ -1,9 +1,8 @@
 import { Link, useLocation } from '@remix-run/react'
 import clsx from 'clsx'
-import { ReactNode, useEffect } from 'react'
-import { useAppNavigate } from '~/hooks/remix'
-import { usePopupToggle, usePopupVisibility } from '~/hooks/zustand/use-popup'
-import { Size } from '~/utils/enums'
+import { ReactNode } from 'react'
+import { usePopupToggle } from '~/hooks/zustand/use-popup'
+import { Size, Route as RouteEnum } from '~/utils/enums'
 import { Route } from '~/utils/string-unions'
 
 export type NavBarColorScheme = 'white' | 'black'
@@ -16,7 +15,13 @@ export default function NavBarLayout({ children }: { children: ReactNode }) {
   )
 }
 
-export function NavBarLogo({ color }: { color: NavBarColorScheme }) {
+export function NavBarLogo() {
+  const location = useLocation()
+  const color: NavBarColorScheme =
+    location.pathname === (RouteEnum.currentUserSaved as Route)
+      ? 'black'
+      : 'white'
+
   return (
     <h2
       className={`leading-[24px]md:text-[20px] h-fit text-center align-middle font-robotoSlab text-[16px] text-${color} font-bold`}
@@ -32,18 +37,12 @@ export function NavBarControls({ children }: { children: ReactNode }) {
 
 export function NavMenuButton() {
   const toggle = usePopupToggle('nav-menu')
-  const isVisible = usePopupVisibility('nav-menu')
-
-  useEffect(() => {
-    console.log('isVisible: ', isVisible)
-  }, [isVisible])
 
   return (
     <button
       type='button'
       className="h-[25px] w-[24px] bg-[url('../public/images/menu.svg')] md:hidden"
       onClick={() => {
-        console.log('clicked')
         toggle()
       }}
     />
@@ -60,14 +59,12 @@ export function NavItemsLayout({ children }: { children: ReactNode }) {
   )
 }
 
-export function NavRouteItems({
-  signedIn,
-  color,
-}: {
-  signedIn: boolean
-  color: NavBarColorScheme
-}) {
-  console.log('signd in: ', signedIn)
+export function NavRouteItems({ signedIn }: { signedIn: boolean }) {
+  const location = useLocation()
+  const color: NavBarColorScheme =
+    location.pathname === (RouteEnum.currentUserSaved as Route)
+      ? 'black'
+      : 'white'
   return (
     <>
       <NavItem to={'/home'} text='Home' color={color} />
@@ -89,6 +86,7 @@ export function NavItem({
 }) {
   const location = useLocation()
   const toggle = usePopupToggle('nav-menu')
+
   return (
     <li
       className={clsx(
@@ -110,14 +108,17 @@ export function NavItem({
 export function AuthButton({
   signedIn,
   size,
-  color,
 }: {
   signedIn: boolean
   size: Size
-  color: NavBarColorScheme
 }) {
   const toggleSignIn = usePopupToggle('sign-in')
   const toggleSignOut = usePopupToggle('sign-out')
+  const location = useLocation()
+  const color: NavBarColorScheme =
+    location.pathname === (RouteEnum.currentUserSaved as Route)
+      ? 'black'
+      : 'white'
 
   const handleClick = async () => {
     if (signedIn) {

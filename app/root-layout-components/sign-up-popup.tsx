@@ -3,13 +3,13 @@ import {
   FormInput,
   PopupFormControls,
   PopupFormLayout,
-  AuthPopupSettings,
+  authPopupSettings,
 } from '~/atoms/popup-form-atoms'
 
-export default function SignIn() {
-  const settings: AuthPopupSettings = {
-    name: 'sign-in',
-    title: 'Sign in',
+export default function SignUpPopup() {
+  const settings: authPopupSettings = {
+    name: 'sign-up',
+    title: 'Sign up',
     inputs: [
       {
         label: 'Email',
@@ -25,12 +25,19 @@ export default function SignIn() {
         type: 'password',
         placeholder: 'Enter password',
       },
+      {
+        label: 'Username',
+        htmlFor: 'username',
+        id: 'username',
+        type: 'text',
+        placeholder: 'Enter your username',
+      },
     ],
     controls: {
-      mainText: 'Sign in',
-      orText: 'Sign up',
-      redirectFrom: 'sign-in',
-      redirectTo: 'sign-up',
+      mainText: 'Sign up',
+      orText: 'Sign in',
+      redirectFrom: 'sign-up',
+      redirectTo: 'sign-in',
     },
   }
 

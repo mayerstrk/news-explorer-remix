@@ -1,13 +1,30 @@
+
 import { PopupLayout } from '~/atoms/popup-atoms'
 import {
   FormInput,
   PopupFormControls,
   PopupFormLayout,
-  AuthPopupSettings,
 } from '~/atoms/popup-form-atoms'
+import { PopupName } from '~/utils/string-unions'
 
+interface authPopupSettings {
+  name: PopupName
+  title: string
+  inputs: {
+    label: string
+    htmlFor: string
+    id: string
+    type: string
+    placeholder: string
+  }[]
+  controls: {
+    mainText: string
+    orText: string
+    orTo: PopupName
+  }
+}
 export default function SignIn() {
-  const settings: AuthPopupSettings = {
+  const settings: authPopupSettings = {
     name: 'sign-in',
     title: 'Sign in',
     inputs: [
@@ -26,12 +43,7 @@ export default function SignIn() {
         placeholder: 'Enter password',
       },
     ],
-    controls: {
-      mainText: 'Sign in',
-      orText: 'Sign up',
-      redirectFrom: 'sign-in',
-      redirectTo: 'sign-up',
-    },
+    controls: { mainText: 'Sign in', orText: 'Sign up', orTo: 'sign-up' },
   }
 
   return (
@@ -47,7 +59,7 @@ export default function SignIn() {
             placeholder={input.placeholder}
           />
         ))}
-        <PopupFormControls settings={settings.controls} />
+        <PopupFormControls name={settings.name} settings={settings.controls} />
       </PopupFormLayout>
     </PopupLayout>
   )

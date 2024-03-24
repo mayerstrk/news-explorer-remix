@@ -8,7 +8,6 @@ export const loader = ({ params }: LoaderFunctionArgs) => {
 }
 
 export default function Home() {
-  console.log('home rendered')
   return (
     <>
       <HomeHeader />

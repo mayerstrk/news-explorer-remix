@@ -14,8 +14,6 @@ export function PopupLayout({
   const toggle = usePopupToggle(name)
   const overlayRef = useRef<HTMLDivElement>(null)
 
-  console.log('is open in layout', isOpen)
-
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
       if (overlayRef.current?.contains(event.target as Node)) {
@@ -24,8 +22,6 @@ export function PopupLayout({
     },
     [toggle],
   )
-
-  console.log(`is '${name}' open`, isOpen)
 
   useEffect(() => {
     if (isOpen) {

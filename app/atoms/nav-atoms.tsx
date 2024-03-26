@@ -1,6 +1,7 @@
 import { Link, useLocation } from '@remix-run/react'
 import clsx from 'clsx'
 import { ReactNode } from 'react'
+import { useUsername } from '~/hooks/zustand/use-current-user'
 import { usePopupToggle } from '~/hooks/zustand/use-popup'
 import { Size, Route as RouteEnum } from '~/utils/enums'
 import { Route } from '~/utils/string-unions'
@@ -112,26 +113,26 @@ export function AuthButton({
   signedIn: boolean
   size: Size
 }) {
-  const toggleSignIn = usePopupToggle('sign-in')
-  const toggleSignOut = usePopupToggle('sign-out')
   const location = useLocation()
+  const toggleSignInPopup = usePopupToggle('sign-in')
+  const toggleSignOutPopup = usePopupToggle('sign-out')
+  const currentUsername = useUsername()
+
   const color: NavBarColorScheme =
-    location.pathname === (RouteEnum.currentUserSaved as Route)
-      ? 'black'
-      : 'white'
+    location.pathname === RouteEnum.currentUserSaved ? 'black' : 'white'
 
   const handleClick = async () => {
     if (signedIn) {
-      toggleSignOut()
+      toggleSignOutPopup()
     } else {
-      toggleSignIn()
+      toggleSignInPopup()
     }
   }
 
   return (
     <button
       className={clsx(
-        'mx-auto h-[56px] w-full rounded-full border-[1px] text-[18px] font-[18px] leading-[24px] md:h-[40px] md:w-[152px] md:text-[16px] xl:h-[48px] xl:w-[176px]',
+        'mx-auto flex h-[56px] w-full items-center justify-center gap-[13px] rounded-full border-[1px] text-[18px] font-[18px] leading-[24px] md:h-[40px] md:w-[152px] md:text-[16px] xl:h-[48px] xl:w-[176px]',
         {
           hidden: size !== Size.sm,
           'border-white text-white': color === 'white',
@@ -140,7 +141,15 @@ export function AuthButton({
       )}
       onClick={handleClick}
     >
-      {signedIn === false ? 'Sign in' : 'Log out'}
+      {signedIn === false ? 'Sign in' : currentUsername}
+      <div
+        className={clsx(
+          'inline-block h-[18px] w-[18px] bg-[url("/images/logout-white.svg")] bg-contain md:h-[16px] md:w-[16px] xl:h-[18px] xl:w-[18px]',
+          {
+            'bg-[url("/images/logout.svg")]': color === 'black',
+          },
+        )}
+      ></div>
     </button>
   )
 }

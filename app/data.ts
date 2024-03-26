@@ -20,6 +20,7 @@ export type article = typeof mockArticle
  *                     On error, returns an object with success flag and error response.
  */
 export function getArticles(
+  term: string,
   amount: number = 5,
   willReturnError = false,
 ):
@@ -33,7 +34,7 @@ export function getArticles(
   }
   const articles = []
   for (let i = 0; i < amount; i++) {
-    const newArticle = { ...mockArticle, _id: Math.random() }
+    const newArticle = { ...mockArticle, title: term, _id: Math.random() }
 
     articles.push(newArticle)
   }

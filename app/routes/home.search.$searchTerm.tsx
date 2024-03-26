@@ -15,7 +15,10 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url)
   const amount = url.searchParams.get('amount') || '6'
 
-  const { success, response } = getMockArticles(Number(amount))
+  const { success, response } = getMockArticles(
+    params.searchTerm,
+    Number(amount),
+  )
 
   if (!success) {
     throw new Error(response.statusText, { cause: response })

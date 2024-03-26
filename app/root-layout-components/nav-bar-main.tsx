@@ -1,4 +1,4 @@
-import { Route as RouteEnum, Size } from '~/utils/enums'
+import { Route, Size } from '~/utils/enums'
 import NavBarLayout, {
   AuthButton,
   NavBarControls,

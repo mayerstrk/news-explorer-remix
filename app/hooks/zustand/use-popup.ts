@@ -1,20 +1,23 @@
 import { create } from 'zustand'
 import { PopupName } from '../../utils/string-unions'
 
-type PopupState = {
-  [key in PopupName]: boolean
-} & {
+type Store = typeof initialState & {
   actions: {
     toggle: (name: PopupName) => void
     redirect: (from: PopupName, to: PopupName) => void
+    closeAll: () => void
   }
 }
 
-export const usePopupStore = create<PopupState>((set) => ({
+const initialState = {
   'sign-in': false,
   'sign-up': false,
   'nav-menu': false,
   'sign-out': false,
+}
+
+export const usePopupStore = create<Store>((set) => ({
+  ...initialState,
   actions: {
     toggle: (name: PopupName) =>
       set((state) => {
@@ -24,6 +27,10 @@ export const usePopupStore = create<PopupState>((set) => ({
       set(() => {
         return { [from]: false, [to]: true }
       }),
+    closeAll: () =>
+      set(() => {
+        return initialState
+      }),
   },
 }))
 
@@ -31,13 +38,12 @@ export const usePopupVisibility = (name: PopupName) =>
   usePopupStore((state) => state[name])
 
 export const usePopupActions = () => usePopupStore((state) => state.actions)
-
 export const usePopupToggle = (name: PopupName) => {
   const { toggle } = usePopupActions()
-
   return () => toggle(name)
 }
-
+export const useClosePopups = () =>
+  usePopupStore((state) => state.actions.closeAll)
 export const usePopupRedirect = (from: PopupName, to: PopupName) => {
   const { redirect } = usePopupActions()
   return () => redirect(from, to)

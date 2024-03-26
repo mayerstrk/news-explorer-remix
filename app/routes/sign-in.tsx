@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, redirect } from '@remix-run/node'
-import { destroySession, getSession } from '~/session.server'
+import { getSession, commitSession } from '~/session.server'
 
 export const loader = () => {
   redirect('/')
@@ -8,7 +8,11 @@ export const loader = () => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getSession(request.headers.get('Cookie'))
 
+  session.set('token', 'fakeToken')
+
   return redirect('/', {
-    headers: { 'Set-Cookie': await destroySession(session) },
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
   })
 }

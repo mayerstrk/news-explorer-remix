@@ -1,8 +1,9 @@
 export type Route =
   | '/home'
-  | '/home/sign-in'
-  | '/home/sign-up'
   | '/saved-articles'
+  | '/sign-up'
+  | '/sign-in'
+  | '/sign-out'
 export type Size = 'sm' | 'md' | 'xl'
 export type PopupName = 'sign-in' | 'sign-up' | 'nav-menu' | 'sign-out'
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'

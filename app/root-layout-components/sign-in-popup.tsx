@@ -36,7 +36,7 @@ export default function SignIn() {
 
   return (
     <PopupLayout name={settings.name}>
-      <PopupFormLayout title={settings.title}>
+      <PopupFormLayout action='/sign-in' title={settings.title}>
         {settings.inputs.map((input) => (
           <FormInput
             key={input.id}

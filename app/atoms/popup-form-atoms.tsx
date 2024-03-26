@@ -1,6 +1,7 @@
+import { useFetcher } from '@remix-run/react'
 import { ReactNode } from 'react'
 import { usePopupRedirect } from '~/hooks/zustand/use-popup'
-import { PopupName } from '~/utils/string-unions'
+import { PopupName, Route } from '~/utils/string-unions'
 
 export interface AuthPopupSettings {
   name: PopupName
@@ -22,14 +23,19 @@ export interface AuthPopupSettings {
 export function PopupFormLayout({
   children,
   title,
+  action,
 }: {
   children: ReactNode
   title: string
+  action: Route
 }) {
+  const fetcher = useFetcher()
   return (
     <div className='z-50 m-0 flex h-[90%] flex-col rounded-t-xl bg-white pb-[28px] md:h-auto md:w-[430px] md:rounded-xl md:px-[36px] md:pt-[34px]'>
       <h2 className='mb-4 text-2xl font-bold'>{title}</h2>
-      <form className='w-full max-w-sm'>{children}</form>
+      <fetcher.Form method='POST' action={action} className='w-full max-w-sm'>
+        {children}
+      </fetcher.Form>
     </div>
   )
 }

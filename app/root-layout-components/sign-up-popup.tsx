@@ -3,11 +3,11 @@ import {
   FormInput,
   PopupFormControls,
   PopupFormLayout,
-  authPopupSettings,
+  AuthPopupSettings,
 } from '~/atoms/popup-form-atoms'
 
 export default function SignUpPopup() {
-  const settings: authPopupSettings = {
+  const settings: AuthPopupSettings = {
     name: 'sign-up',
     title: 'Sign up',
     inputs: [
@@ -43,7 +43,7 @@ export default function SignUpPopup() {
 
   return (
     <PopupLayout name={settings.name}>
-      <PopupFormLayout title={settings.title}>
+      <PopupFormLayout action='/sign-up' title={settings.title}>
         {settings.inputs.map((input) => (
           <FormInput
             key={input.id}

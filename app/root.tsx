@@ -1,4 +1,4 @@
-import type { LinksFunction } from '@remix-run/node'
+import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node'
 import {
   Links,
   Meta,
@@ -6,34 +6,51 @@ import {
   Scripts,
   ScrollRestoration,
   json,
-  useRouteLoaderData,
+  useLoaderData,
 } from '@remix-run/react'
 import styles from './tailwind.css?url'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { NavMobilePopup } from './root-layout-components/nav-mobile-popup'
 import Footer from './root-layout-components/footer'
 import SignInPopup from './root-layout-components/sign-in-popup'
 import SignUpPopup from './root-layout-components/sign-up-popup'
+import { commitSession, getSession } from './session.server'
+import SignOutPopup from './root-layout-components/sign-out-popup'
+import { useClosePopups } from './hooks/zustand/use-popup'
+import { useCurrentUserActions } from './hooks/zustand/use-current-user'
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
 
-export const loader = async () => {
-  // const { success, response: user } = await getCurrentUser()
-  // if (!success) {
-  //   return json({ signedIn: false })
-  // }
-  //
-  // return json({ signedIn: true, user })
-  return json({ signedIn: false })
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const session = await getSession(request.headers.get('Cookie'))
+
+  if (session.has('token')) {
+    return json({
+      signedIn: true,
+      userData: { email: 'momo@gmail.com', username: 'momo' },
+    })
+  }
+
+  return json(
+    { signedIn: false, userData: null },
+    { headers: { 'Set-Cokkie': await commitSession(session) } },
+  )
 }
 
 export function Layout({ children }: { children: ReactNode }) {
-  const data = useRouteLoaderData<typeof loader>('root')
-  if (!data) {
-    throw new Error('Unexpected errror')
-  }
-  const signedIn = data === undefined ? false : data.signedIn
+  const { signedIn, userData } = useLoaderData<typeof loader>()
+  const { setEmail, setUsername } = useCurrentUserActions()
+
+  useEffect(() => {
+    if (userData) {
+      setEmail(userData.email)
+      setUsername(userData.username)
+    }
+  }, [signedIn, setEmail, setUsername, userData])
+
+  useClosePopups()()
+
   return (
     <html lang='en'>
       <head>
@@ -54,8 +71,9 @@ export function Layout({ children }: { children: ReactNode }) {
       <body className='relative h-dvh w-full min-w-[240px] font-roboto'>
         <NavBarMain signedIn={signedIn} />
         <NavMobilePopup signedIn={signedIn} />
-        <SignInPopup />
         <SignUpPopup />
+        <SignInPopup />
+        <SignOutPopup />
         {children}
         <Footer />
         <ScrollRestoration />

@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from '@remix-run/node'
+import { createCookieSessionStorage } from '@vercel/remix'
 
 type SessionData = {
   token: string

@@ -1,4 +1,4 @@
-import { LoaderFunction } from '@remix-run/node'
+import { LoaderFunction } from '@vercel/remix'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 

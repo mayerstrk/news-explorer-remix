@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
 import {
   isRouteErrorResponse,

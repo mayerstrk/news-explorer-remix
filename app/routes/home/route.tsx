@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from '@remix-run/node'
+import { LoaderFunctionArgs } from '@vercel/remix'
 import { Outlet } from '@remix-run/react'
 import HomeAuthor from './home-author'
 import HomeHeader from './home-header'

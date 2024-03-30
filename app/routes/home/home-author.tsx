@@ -18,10 +18,10 @@ export default function HomeAuthor() {
     >
       <div
         className={clsx(
-          'h-[272px] w-[272px] rounded-full bg-cover',
+          'min-h-[272px] min-w-[272px] rounded-full bg-cover',
           'bg-[url("../public/images/IMG_20231104_141259_716.jpg")]',
-          'md:h-[232px] md:min-w-[232px]',
-          'xl:h-[464px] xl:min-w-[464px]',
+          'md:min-h-[232px] md:min-w-[232px]',
+          'xl:min-h-[464px] xl:min-w-[464px]',
         )}
       ></div>
       <div className='flex max-w-[600px] flex-col gap-[16px]'>

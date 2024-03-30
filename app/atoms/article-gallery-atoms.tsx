@@ -24,14 +24,14 @@ export function ArticleGalleryLayout({
         id='gallery'
         ref={topRef}
         className={clsx(
-          'relative',
+          'relative', // positioning
           'flex flex-col items-center', // display
           'bg-[#F5F6F7]', // background
         )}
       >
         <button
           className={clsx(
-            'fixed  bottom-[20px] right-[20px] z-50',
+            'fixed  bottom-[20px] right-[20px] z-50', // positioning
             'flex items-center justify-center', // display
             'h-12 w-12 max-w-12', // dimensions
             'rounded-full bg-white ', // background
@@ -71,7 +71,7 @@ export function ArticleGalleryLayout({
             <h2
               className={clsx(
                 'mb-[34px] mt-[32px]', // margin
-                'self-start',
+                'self-start', // positioning
                 'font-robotoSlab text-[30px] leading-[34px]', // typography
                 'text-[#1A1B22]', // background
               )}
@@ -212,21 +212,23 @@ export function ArticleCard({
 export function ResultArticleControls() {
   const [isSaved, setIsSaved] = useState(false)
   return (
-    <ArticleControlLayout>
-      <button
-        className={clsx(
-          'h-[26px] w-[26px]', // dimensions
-          'bg-contain', // background
-          'hover:bg-[url("/images/bookmark--hover.svg")]', // hover
+    <div className='absolute right-[8px] top-[8px] xl:right-[24px] xl:top-[24px]'>
+      <ArticleControlLayout>
+        <button
+          className={clsx(
+            'h-[26px] w-[26px]', // dimensions
+            'bg-contain', // background
+            'hover:bg-[url("/images/bookmark--hover.svg")]', // hover
 
-          {
-            'bg-[url("/images/bookmark.svg")]': !isSaved, // background (conditional)
-            'bg-[url("/images/bookmark-active.svg")]': isSaved, // background (conditional)
-          },
-        )}
-        onClick={() => setIsSaved(!isSaved)}
-      ></button>
-    </ArticleControlLayout>
+            {
+              'bg-[url("/images/bookmark.svg")]': !isSaved, // background (conditional)
+              'bg-[url("/images/bookmark-active.svg")]': isSaved, // background (conditional)
+            },
+          )}
+          onClick={() => setIsSaved(!isSaved)}
+        ></button>
+      </ArticleControlLayout>
+    </div>
   )
 }
 
@@ -237,29 +239,27 @@ export function SavedArticleControls({ keyword }: { keyword: string }) {
   return (
     <div
       className={clsx(
-        't-0 absolute inset-x-0',
+        't-0 absolute inset-x-0', // positioning
         'flex w-full justify-between', // display
-        'px-[16px] pt-[16px]', // margin and padding
+        'px-[16px] pt-[16px] md:p-[8px] xl:p-[24px]', // margin and padding
       )}
     >
       <ArticleControlLayout
-        width={'auto'} // dimensions (?)
         xpadding='22px' // margin and padding (?)
       >
         {keyword}
       </ArticleControlLayout>
       <div
         className={clsx(
-          'relative flex gap-[5px] md:flex-col-reverse xl:flex-row ', // display
+          'relative flex gap-[5px] md:flex-col-reverse lg:flex-row ', // display
         )}
       >
         {isHovered && (
-          <ArticleControlLayout
-            xpadding='26px'
-            absolutePositioning={'md:absolute md:-left-[185px] xl:block'}
-          >
-            Remove from saved
-          </ArticleControlLayout>
+          <div className='absolute -left-[185px] top-0'>
+            <ArticleControlLayout xpadding='26px'>
+              Remove from saved
+            </ArticleControlLayout>
+          </div>
         )}
         <ArticleControlLayout>
           <button
@@ -280,19 +280,15 @@ export function SavedArticleControls({ keyword }: { keyword: string }) {
 
 function ArticleControlLayout({
   children,
-  absolutePositioning = '',
   xpadding = '8px',
 }: {
   children: ReactNode
-  width?: string
-  absolutePositioning?: string
   xpadding?: string
 }) {
   return (
     <div
       style={{ paddingLeft: xpadding, paddingRight: xpadding }}
       className={clsx(
-        absolutePositioning,
         'flex items-center justify-center rounded-lg', // display
         'bg-white ', // background
         'py-[8px]', // margin and padding

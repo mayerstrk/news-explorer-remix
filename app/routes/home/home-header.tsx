@@ -1,35 +1,53 @@
 import { useNavigate } from '@remix-run/react'
-import { FormEventHandler, ReactNode, useEffect } from 'react'
+import { FormEventHandler, ReactNode } from 'react'
 import { HomeLoader } from './route'
 import { useDebouncedCallback } from 'use-debounce'
 import HeaderNavPlaceholder from '~/atoms/header-atoms'
-import { useDynamicParam } from '~/hooks/useDynamicParam'
+import { useDynamicParam } from '~/hooks/use-dynamic-param'
+import clsx from 'clsx'
 
 export default function HomeHeader() {
   return (
-    <header className="relative flex h-[95%] max-h-[634px] w-full flex-col items-center bg-[url('../public/images/82f1206f112335e2ee4d938ba64f02d6.jpeg')] bg-cover bg-center before:absolute before:inset-0 before:bg-black before:opacity-40 md:max-h-[576px] xl:max-h-[576px]">
+    <header
+      className={clsx(
+        'relative flex w-full flex-col items-center', // display
+        'h-[95vh] max-h-[634px] md:max-h-[400px]  xl:max-h-[576px]', // dimensions
+        "bg-[url('../public/images/82f1206f112335e2ee4d938ba64f02d6.jpeg')] bg-cover bg-center", // background
+        'before:absolute before:inset-0 before:bg-black before:opacity-40', // pseudo-elements
+      )}
+    >
       <HeaderNavPlaceholder />
-      <HeaderContent>
-        <div id='header-text' className='flex flex-col gap-y-[16px] text-white'>
-          <p className='font-robotoSlab text-[36px] leading-[40px]'>
-            What&#39;s going on in the world?
+      <div
+        className={clsx(
+          'relative flex grow flex-col items-center justify-between', // display
+          'max-w-[452px]  md:max-w-[608px] xl:max-w-[1920px]', // dimensions
+          'px-[16px] pb-[32px] pt-[30px] md:pb-[48px] md:pt-[38px] xl:py-[80px]', // padding
+        )}
+      >
+        <div
+          id='header-text'
+          className={clsx(
+            'flex flex-col gap-y-[16px]', // display
+            'text-white', // typography
+          )}
+        >
+          <p
+            className={clsx(
+              'font-robotoSlab text-[36px] leading-[40px] xl:text-[60px] xl:leading-[64px]',
+            )} // typography
+          >
+            What&apos;s going on in the world?
           </p>
-          <p className='text-[18px] leading-[24px]'>
+          <p
+            className={clsx('text-[18px] leading-[24px]')} // typography
+          >
             Find the latest news on any topic and save them in your personal
             account.
           </p>
         </div>
         <HeaderSearch />
-      </HeaderContent>
+      </div>
     </header>
-  )
-}
-
-function HeaderContent({ children }: { children: ReactNode }) {
-  return (
-    <div className='relative flex max-w-[452px] grow flex-col items-center justify-between px-[16px] pb-[32px] pt-[30px] md:max-w-[608px]'>
-      {children}
-    </div>
   )
 }
 
@@ -66,7 +84,11 @@ export function HeaderSearch() {
   return (
     <div className='w-full'>
       <form
-        className='relative flex flex-col gap-[16px] md:flex-row'
+        className={clsx(
+          'relative', // positioning
+          'flex flex-col gap-[16px] md:flex-row', // display
+          'w-full', // dimensions
+        )}
         onSubmit={handleFormSubmit}
       >
         <input
@@ -74,13 +96,21 @@ export function HeaderSearch() {
           id='search-term'
           type='text'
           placeholder='Topic'
-          className='h-[56px] w-full rounded-3xl px-[16px] md:px-[24px] md:pr-[196px] xl:pr-[208px]'
+          className={clsx(
+            'h-[56px] w-full rounded-3xl', // dimensions
+            'px-[16px] focus:outline-none md:px-[24px] md:pr-[196px] xl:pr-[208px]', // margin and padding
+          )}
           value={searchTerm}
           onChange={handleInputChange}
         />
         <button
           type='submit'
-          className='h-[56px] w-full rounded-3xl bg-blue-600 text-[18px] text-white md:absolute md:right-0 md:w-[160px] xl:w-[168px]'
+          className={clsx(
+            'h-[56px] w-full rounded-3xl', // dimensions
+            'bg-blue-600', // background
+            'text-[18px] text-white', // typography
+            'md:absolute md:right-0 md:w-[160px] xl:w-[168px]', // positioning
+          )}
         >
           Search
         </button>

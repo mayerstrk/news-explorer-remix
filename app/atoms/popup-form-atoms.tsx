@@ -1,5 +1,7 @@
 import { useFetcher } from '@remix-run/react'
-import { ReactNode } from 'react'
+import clsx from 'clsx'
+import { ChangeEvent, ReactNode } from 'react'
+import { InputName } from '~/hooks/use-form'
 import { usePopupRedirect } from '~/hooks/zustand/use-popup'
 import { PopupName, Route } from '~/utils/string-unions'
 
@@ -9,7 +11,7 @@ export interface AuthPopupSettings {
   inputs: {
     label: string
     htmlFor: string
-    id: string
+    id: InputName
     type: string
     placeholder: string
   }[]
@@ -31,9 +33,9 @@ export function PopupFormLayout({
 }) {
   const fetcher = useFetcher()
   return (
-    <div className='z-50 m-0 flex h-[90%] flex-col rounded-t-xl bg-white pb-[28px] md:h-auto md:w-[430px] md:rounded-xl md:px-[36px] md:pt-[34px]'>
-      <h2 className='mb-4 text-2xl font-bold'>{title}</h2>
-      <fetcher.Form method='POST' action={action} className='w-full max-w-sm'>
+    <div className='fixed bottom-0 z-50 m-0 flex h-[90vh] w-full flex-col items-center rounded-t-xl bg-white px-[16px] pb-[28px] pt-[16px] md:bottom-auto md:h-auto md:w-[430px] md:rounded-xl md:px-[36px] md:pt-[34px]'>
+      <h2 className='mb-[18px] self-start text-2xl font-bold'>{title}</h2>
+      <fetcher.Form method='POST' action={action} className='w-full'>
         {children}
       </fetcher.Form>
     </div>
@@ -42,54 +44,78 @@ export function PopupFormLayout({
 
 export function PopupFormControls({
   settings,
+  isSubmitEnabled,
 }: {
   settings: AuthPopupSettings['controls']
+  isSubmitEnabled: boolean
 }) {
   const redirect = usePopupRedirect(settings.redirectFrom, settings.redirectTo)
+  console.log('isEnabled inner: ', isSubmitEnabled)
+
   return (
-    <div className='flex flex-col items-center'>
+    <div className='flex w-full flex-col items-center'>
       <button
-        className='focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none'
+        className={clsx(
+          'mb-[16px] w-full rounded-full bg-[#E6E8EB] py-[20px] font-bold text-[#B6BCBF]  hover:bg-[#347EFF] focus:outline-none active:bg-[#2A65CC]',
+          { ' bg-blue-500 text-white': isSubmitEnabled },
+        )}
         type='submit'
+        disabled={!isSubmitEnabled}
       >
         {settings.mainText}
       </button>
       <button
         type='button'
-        className='inline-block align-baseline text-sm font-bold text-blue-500 hover:text-blue-800'
+        className='inline-block align-baseline text-sm text-blue-500 hover:text-blue-800'
         onClick={redirect}
       >
-        or {settings.orText}
+        <span className='text-black'>or</span> {settings.orText}
       </button>
     </div>
   )
 }
+export function FormFieldset({ children }: { children: ReactNode }) {
+  return (
+    <fieldset className='mb-[23px] flex w-full flex-col gap-[30px]'>
+      {children}
+    </fieldset>
+  )
+}
+
 export function FormInput({
   label,
   htmlFor,
   id,
   type,
   placeholder,
+  value,
+  onChange,
 }: {
   label: string
   htmlFor: string
   id: string
   type: string
   placeholder: string
+  value: string
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
-    <div className='mb-4'>
+    <div className='w-full'>
       <label
-        className='mb-2 block text-sm font-bold text-gray-700'
+        className='mb-[8px] block w-full font-inter text-sm text-blue-500'
         htmlFor={htmlFor}
       >
         {label}
       </label>
       <input
-        className='focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none'
+        className='w-full appearance-none rounded rounded-b-none border-b-[2px] p-0 pb-[10px] leading-tight text-gray-700 focus:outline-none'
         id={id}
+        name={htmlFor}
         type={type}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        required
       />
     </div>
   )

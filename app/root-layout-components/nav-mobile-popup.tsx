@@ -17,8 +17,8 @@ export function NavMobilePopup({ signedIn }: { signedIn: boolean }) {
         <NavBarPopupCloseButton />
       </NavBarLayout>
       <NavItemsLayout>
-        <NavRouteItems signedIn={signedIn} color='white' />
-        <AuthButton signedIn={signedIn} size={Size.sm} color='white' />
+        <NavRouteItems color='white' signedIn={signedIn} />
+        <AuthButton signedIn={signedIn} color='white' size={Size.sm} />
       </NavItemsLayout>
     </NavMobilePopupLayout>
   )
@@ -27,7 +27,7 @@ export function NavMobilePopup({ signedIn }: { signedIn: boolean }) {
 export function NavMobilePopupLayout({ children }: { children: ReactNode }) {
   return (
     <PopupLayout name='nav-menu'>
-      <div className=' z-50 bg-[#1A1B22] pt-[var(--navbar-h)] text-white '>
+      <div className='z-50 w-full bg-[#1A1B22] pt-[var(--navbar-h)] text-white '>
         {children}
       </div>
     </PopupLayout>

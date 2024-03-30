@@ -1,4 +1,4 @@
 import { redirect } from '@remix-run/node'
-import {  } from '~/utils/string-unions'
+import { Route } from '~/utils/string-unions'
 
-export const appRedirect = (path: Path) => redirect(path)
+export const appRedirect = (path: Route) => redirect(path)

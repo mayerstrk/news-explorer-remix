@@ -1,7 +1,8 @@
 const mockArticle = {
   title: 'mock',
   keyword: 'mock',
-  image: 'https://source.unsplash.com/bundle-of-newspaper-on-table-Mwuod2cm8g4',
+  image:
+    'https://static1.srcdn.com/wordpress/wp-content/uploads/2023/09/frieren-from-frieren-beyond-journey-s-end.jpg?q=50&fit=contain&w=943&h=&dpr=1.5',
   date: Date.now(),
   text: 'article text goes here',
   source: 'mock data',
@@ -11,7 +12,7 @@ const mockArticle = {
   _id: 0,
 }
 
-export type article = typeof mockArticle
+export type Article = typeof mockArticle
 
 /**
  * Fetches articles or simulates a fetch error.
@@ -34,7 +35,12 @@ export function getArticles(
   }
   const articles = []
   for (let i = 0; i < amount; i++) {
-    const newArticle = { ...mockArticle, title: term, _id: Math.random() }
+    const newArticle = {
+      ...mockArticle,
+      keyword: term.split(' ')[0],
+      title: term,
+      _id: Math.random(),
+    }
 
     articles.push(newArticle)
   }

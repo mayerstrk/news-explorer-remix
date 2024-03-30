@@ -21,7 +21,7 @@ export const usePopupStore = create<Store>((set) => ({
   actions: {
     toggle: (name: PopupName) =>
       set((state) => {
-        return { [name]: !state[name] }
+        return { ...initialState, [name]: !state[name] }
       }),
     redirect: (from: PopupName, to: PopupName) =>
       set(() => {

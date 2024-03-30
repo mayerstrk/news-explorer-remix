@@ -7,5 +7,9 @@ import { remixDevTools } from 'remix-development-tools'
 installGlobals()
 
 export default defineConfig({
+  base: '/',
   plugins: [remixDevTools(), remix(), tsconfigPaths()],
+  server: {
+    host: '127.0.0.1',
+  },
 })

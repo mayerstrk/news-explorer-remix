@@ -33,7 +33,7 @@ export function PopupFormLayout({
 }) {
   const fetcher = useFetcher()
   return (
-    <div className='fixed bottom-0 z-50 m-0 flex h-[90vh] w-full flex-col items-center rounded-t-xl bg-white px-[16px] pb-[28px] pt-[16px] md:bottom-auto md:h-auto md:w-[430px] md:rounded-xl md:px-[36px] md:pt-[34px]'>
+    <div className='fixed bottom-0 z-50 m-0 flex h-[90%] w-full flex-col items-center rounded-t-xl bg-white px-[16px] pb-[28px] pt-[16px] md:bottom-auto md:h-auto md:w-[430px] md:rounded-xl md:px-[36px] md:pt-[34px]'>
       <h2 className='mb-[18px] self-start text-2xl font-bold'>{title}</h2>
       <fetcher.Form method='POST' action={action} className='w-full'>
         {children}

@@ -167,14 +167,16 @@ export function AuthButton({
       onClick={handleClick}
     >
       {signedIn === false ? 'Sign in' : currentUsername}
-      <div
-        className={clsx(
-          'inline-block h-[18px] w-[18px] bg-[url("/images/logout-white.svg")] bg-contain md:h-[16px] md:w-[16px] xl:h-[18px] xl:w-[18px]',
-          {
-            'bg-[url("/images/logout.svg")]': color === 'black',
-          },
-        )}
-      ></div>
+      {signedIn && (
+        <div
+          className={clsx(
+            'inline-block h-[18px] w-[18px] bg-[url("/images/logout-white.svg")] bg-contain md:h-[16px] md:w-[16px] xl:h-[18px] xl:w-[18px]',
+            {
+              'bg-[url("/images/logout.svg")]': color === 'black',
+            },
+          )}
+        ></div>
+      )}
     </button>
   )
 }

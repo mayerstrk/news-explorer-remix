@@ -221,10 +221,8 @@ export function ResultArticleControls() {
             'hover:bg-[url("/images/bookmark--hover.svg")]', // hover
 
             {
-              'bg-[url("/images/bookmark.svg")] focus:bg-[url("/images/bookmark-active.svg")]':
-                !isSaved, // background (conditional)
-              'bg-[url("/images/bookmark-active.svg")] focus:bg-[url("/images/bookmark.svg")]':
-                isSaved, // background (conditional)
+              'bg-[url("/images/bookmark.svg")]': !isSaved, // background (conditional)
+              'bg-[url("/images/bookmark-active.svg")]': isSaved, // background (conditional)
             },
           )}
           onClick={() => setIsSaved(!isSaved)}
@@ -268,7 +266,7 @@ export function SavedArticleControls({ keyword }: { keyword: string }) {
             className={clsx(
               'h-[24px] w-[24px]', // dimensions
               'bg-[url("/images/trash.svg")]', // background
-              'focus:bg-[url("/images/trash--hover.svg")] md:hover:bg-[url("/images/trash--hover.svg")]', // hover
+              'hover:bg-[url("/images/trash--hover.svg")]', // hover
             )}
             onClick={() => setIsSaved(!isSaved)}
             onMouseEnter={() => setIsHovered(true)}

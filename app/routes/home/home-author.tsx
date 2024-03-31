@@ -11,28 +11,32 @@ export default function HomeAuthor() {
   return (
     <section
       className={clsx(
-        'flex flex-col items-center justify-center gap-[24px] px-[16px] py-[32px]',
-        'md:flex-row md:gap-[32px] md:p-[40px]',
-        'xl:gap-[56px] xl:px-[80px] xl:py-[104px]',
+        'flex flex-col items-center justify-center md:flex-row xl:justify-start', // display
+        'mx-auto gap-[24px] px-[16px] pb-[128px] pt-[32px] md:gap-[32px] md:p-[40px] md:pt-[44px] xl:gap-[56px] xl:px-[104px] xl:py-[80px]', // spacing
+        'max-w-[1440px] xl:h-auto', // dimensions
+        { 'md:h-[354px]': isExpanded === false }, // conditional
       )}
     >
       <div
         className={clsx(
-          'min-h-[272px] min-w-[272px] rounded-full bg-cover',
-          'bg-[url("../public/images/IMG_20231104_141259_716.jpg")]',
-          'md:min-h-[232px] md:min-w-[232px]',
-          'xl:min-h-[464px] xl:min-w-[464px]',
+          'min-h-[272px] min-w-[272px] md:min-h-[232px] md:min-w-[232px] xl:min-h-[464px] xl:min-w-[464px]', // dimesions
+          'bg-[url("../public/images/IMG_20231104_141259_716.jpg")]  bg-cover', // background
+          'rounded-full', // effects
         )}
       ></div>
-      <div className='flex max-w-[600px] flex-col gap-[16px]'>
-        <h2 className={clsx('font-robotoSlab text-[30px] leading-[40px]')}>
+      <div className='md flex max-w-[600px] flex-col gap-[16px] xl:gap-[35px] xl:self-start xl:pt-[51px]'>
+        <h2
+          className={clsx(
+            'font-robotoSlab text-[30px] leading-[40px] md:h-[34px] xl:text-[40px] xl:leading-[46px]',
+          )}
+        >
           About me
         </h2>
         <div
           className={clsx(
             'relative flex flex-col gap-[24px] text-justify text-[18px]',
             {
-              'max-h-[200px] overflow-y-hidden': !isExpanded,
+              'max-h-[196px] overflow-y-hidden md:max-h-[168px]': !isExpanded,
               'md:overflow-hidden': true,
             },
           )}

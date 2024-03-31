@@ -2,6 +2,7 @@ import { LoaderFunctionArgs, json } from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
 import {
   isRouteErrorResponse,
+  redirect,
   useLoaderData,
   useRouteError,
 } from '@remix-run/react'
@@ -13,8 +14,14 @@ import {
 } from '~/atoms/article-gallery-atoms'
 import { Article, getArticles as getMockArticles } from '~/data'
 import clsx from 'clsx'
+import { getSession } from '~/session.server'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const session = await getSession(request.headers.get('Cookie'))
+
+  if (!session.has('token')) {
+    return redirect('/')
+  }
   const url = new URL(request.url)
   const amount = url.searchParams.get('amount') || '12'
 
@@ -63,8 +70,6 @@ function Gallery() {
           <SavedArticleCard data={article} key={article._id} />
         ))}
       </ArticleGalleryLayout>
-      <Loading />
-      <ErrorBoundary />
     </Suspense>
   )
 }
@@ -87,8 +92,8 @@ function Loading() {
     >
       <div
         className={clsx(
-          'h-[74px] w-[74px]', 
-          'bg-[url("../public/images/Ellipse.svg")] bg-cover', 
+          'h-[74px] w-[74px]',
+          'bg-[url("../public/images/Ellipse.svg")] bg-cover',
         )}
       ></div>
       <p
@@ -106,29 +111,29 @@ function NoArticle() {
       className={clsx(
         'flex flex-col items-center align-middle', // display
         'gap-[24px] px-[16px] pb-[80px] pt-[86px]', // margin and padding
-        'bg-[#F5F6F7]', 
+        'bg-[#F5F6F7]',
       )}
     >
       <div
         className={clsx(
-          'h-[74px] w-[74px]', 
-          'bg-[url("../public/images/not-found_v1.svg")] bg-cover', 
+          'h-[74px] w-[74px]',
+          'bg-[url("../public/images/not-found_v1.svg")] bg-cover',
         )}
       ></div>
       <p
         className={clsx(
           'font-robotoSlab text-[26px] leading-[30px]', // typography
-          'text-[#1A1B22]', 
+          'text-[#1A1B22]',
         )}
       >
         Nothing Found
       </p>
       <p
         className={clsx(
-          'w-[65%] max-w-[356px]', 
+          'w-[65%] max-w-[356px]',
           'text-center', // display
           'text-[18px]', // typography
-          'text-[#b6bcbf]', 
+          'text-[#b6bcbf]',
         )}
       >
         Sorry, but nothing matches your search terms

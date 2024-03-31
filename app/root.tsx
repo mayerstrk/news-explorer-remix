@@ -28,7 +28,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (session.has('token')) {
     return json({
       signedIn: true,
-      userData: { email: 'momo@gmail.com', username: 'momo' },
+      userData: { email: 'momo@gmail.com', username: 'Elise' },
     })
   }
 

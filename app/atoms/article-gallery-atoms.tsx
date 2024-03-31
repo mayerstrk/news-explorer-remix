@@ -36,8 +36,7 @@ export function ArticleGalleryLayout({
             'h-12 w-12 max-w-12', // dimensions
             'rounded-full bg-white ', // background
             'text-sm', // typography
-            'shadow-sm shadow-white', // effects
-            'md:hidden', // md
+            'shadow-sm shadow-white md:hidden', // effects
           )}
           onClick={scrollToTop}
         >
@@ -70,10 +69,9 @@ export function ArticleGalleryLayout({
           {title && (
             <h2
               className={clsx(
-                'mb-[34px] mt-[32px]', // margin
+                'mt-[32px] md:mt-[40px] xl:mt-[80px]', // spacing
                 'self-start', // positioning
-                'font-robotoSlab text-[30px] leading-[34px]', // typography
-                'text-[#1A1B22]', // background
+                'font-robotoSlab text-[30px] leading-[34px] text-[#1A1B22] xl:text-[40px] xl:leading-[46px]', // typography
               )}
             >
               {title}
@@ -81,29 +79,29 @@ export function ArticleGalleryLayout({
           )}
           <ul
             className={clsx(
-              'mb-[13px] mt-[24px]', // margin
-              'grid w-fit grid-cols-1 gap-[24px]', // display
+              'mb-[13px] mt-[58px] gap-[10px] md:mb-[32px] md:mt-[32px] xl:mb-[64px] xl:mt-[62px] xl:gap-[16px]', // spacing
+              'grid w-fit grid-cols-1 md:grid-cols-3 ', // display
               'rounded-full', // effects
-              'md:mb-[32px] md:grid-cols-3', // md
+              ' ', // md
             )}
           >
             {children}
           </ul>
           <div
             className={clsx(
-              'mb-[24px] mt-[8px]', // margin
+              'mb-[24px] mt-[8px] md:mb-[40px] md:mt-0 xl:mb-[80px]', // spacing
               'flex flex-col items-center', // display
             )}
           >
             <Link
               preventScrollReset={true}
               className={clsx(
-                'w-[288px]', // dimensions
+                'h-[56px] w-[288px] md:w-[240px] xl:h-[64px] xl:w-[288px]', // dimensions
                 'rounded-full', // effects
                 'bg-white ', // background
-                'py-[20px]', // margin and padding
-                'text-center text-[18px] font-medium leading-[24px]', // typography
-                { 'hover:bg-[#E8E8E8]': true }, // hover
+                'text-[18px] font-medium leading-[24px]', // typography
+                'hover:bg-[#E8E8E8]', // hover
+                'flex items-center justify-center',
               )}
               to={`?amount=${Number(amount) + 6}`}
               type='button'
@@ -141,26 +139,22 @@ export function ArticleCard({
     <li
       className={clsx(
         'relative mx-auto flex flex-col rounded-lg', //positioning
-        'h-[440px] w-full', //dimensions
+        'h-[440px] w-full md:h-[420px] md:w-[224px] xl:h-[576px] xl:w-[400px]', //dimensions
         'bg-white', //background
         'shadow-sm', //effects
         'shadow-gray-100', //effects
-        'md:w-[224px]', //md
-        'xl:w-[400px]', //xl
       )}
     >
       {children}
       <img
         src={data.image}
         alt={data.title}
-        className={clsx(
-          'h-[196px] w-full rounded-t-lg object-cover', //dimensions
-        )}
+        className='h-[196px] w-full rounded-t-lg object-cover md:h-[150px] xl:h-[272px]'
       />
       <div
         className={clsx(
           'flex flex-grow flex-col', //display
-          'p-[16px]', //margin and padding
+          'p-[16px] xl:px-[24px] xl:pb-[24px] xl:pt-[17px]', // spacing
         )}
       >
         <p
@@ -180,7 +174,7 @@ export function ArticleCard({
           className={clsx(
             'mb-[14px]', //margin and padding
             'w-full', //dimensions
-            'font-robotoSlab text-[22px] leading-[24px]', //typography
+            'break-words font-robotoSlab text-[22px] leading-[24px] xl:text-[26px] xl:leading-[30px]', //typography
             'text-[#1A1B22]', //background
           )}
         >
@@ -212,7 +206,7 @@ export function ArticleCard({
 export function ResultArticleControls() {
   const [isSaved, setIsSaved] = useState(false)
   return (
-    <div className='absolute right-[8px] top-[8px] xl:right-[24px] xl:top-[24px]'>
+    <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
       <ArticleControlLayout>
         <button
           className={clsx(
@@ -251,14 +245,12 @@ export function SavedArticleControls({ keyword }: { keyword: string }) {
       </ArticleControlLayout>
       <div
         className={clsx(
-          'relative flex gap-[5px] md:flex-col-reverse lg:flex-row ', // display
+          'relative flex gap-[5px]', // display
         )}
       >
         {isHovered && (
-          <div className='absolute -left-[185px] top-0'>
-            <ArticleControlLayout xpadding='26px'>
-              Remove from saved
-            </ArticleControlLayout>
+          <div className='w-[159px] md:absolute md:-left-[164px] md:top-0'>
+            <ArticleControlLayout>Remove from saved</ArticleControlLayout>
           </div>
         )}
         <ArticleControlLayout>

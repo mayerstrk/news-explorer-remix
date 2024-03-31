@@ -176,9 +176,9 @@ export function AuthButton({
   return (
     <button
       className={clsx(
-        'mx-auto  ', // spacing
+        'mx-auto', // spacing
         'flex items-center justify-center', // display
-        'h-[56px] md:h-[40px] xl:h-[48px] ', // dimensions
+        'h-[56px] w-full md:h-[40px] xl:h-[48px]', // dimensions
         'rounded-full border-[1px]', // effects
         'text-[18px] font-[18px] leading-[24px] md:text-[16px] md:font-medium xl:text-[18px]', // typography
         {
@@ -186,7 +186,7 @@ export function AuthButton({
           'border-white text-white': color === 'white',
           'border-black text-black': color === 'black',
           'pl-0 md:w-[152px] md:pl-0 xl:w-[176px] xl:pl-0 ': signedIn !== true,
-          'w-full md:w-fit  md:pl-[15px]  xl:pl-[19px]': signedIn === true,
+          'md:w-fit md:pl-[15px] xl:pl-[19px]': signedIn === true,
         },
       )}
       onClick={handleClick}
@@ -195,7 +195,7 @@ export function AuthButton({
       {signedIn && (
         <div
           className={clsx(
-            'h-[18px] w-[18px] bg-[url("/images/logout-white.svg")] bg-contain md:mx-[13px] md:h-[24px] md:w-[24px] xl:h-[24px] xl:w-[24px]',
+            'ml-[5px] h-[18px] w-[18px] bg-[url("/images/logout-white.svg")] bg-contain md:mx-[13px] md:h-[24px] md:w-[24px] xl:h-[24px] xl:w-[24px]',
             {
               'bg-[url("/images/logout.svg")]': color === 'black',
             },

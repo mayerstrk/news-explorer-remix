@@ -2,7 +2,7 @@ import { useFetcher } from '@remix-run/react'
 import clsx from 'clsx'
 import { ChangeEvent, ReactNode } from 'react'
 import { InputName } from '~/hooks/use-form'
-import { usePopupRedirect } from '~/hooks/zustand/use-popup'
+import { usePopupRedirect, usePopupToggle } from '~/hooks/zustand/use-popup'
 import { PopupName, Route } from '~/utils/string-unions'
 
 export interface AuthPopupSettings {
@@ -23,14 +23,17 @@ export interface AuthPopupSettings {
   }
 }
 export function PopupFormLayout({
+  name,
   children,
   title,
   action,
 }: {
+  name: PopupName
   children: ReactNode
   title: string
   action: Route
 }) {
+  const toggle = usePopupToggle(name)
   const fetcher = useFetcher()
   return (
     <div
@@ -44,7 +47,10 @@ export function PopupFormLayout({
         'px-[16px] pb-[28px] pt-[16px] md:px-[36px] md:pt-[34px]', // margin and padding
       )}
     >
-      <div className='absolute -right-[46px] -top-[46px] z-50 h-[40px] w-[40px] bg-[url("/images/close.svg")] bg-cover'></div>
+      <button
+        className='absolute -right-[46px] -top-[46px] z-50 h-[40px] w-[40px] bg-[url("/images/close.svg")] bg-cover'
+        onClick={toggle}
+      ></button>
       <h2 className='mb-[18px] self-start text-2xl font-bold md:text-[24px]'>
         {title}
       </h2>

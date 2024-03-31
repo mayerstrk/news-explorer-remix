@@ -48,7 +48,11 @@ export default function SignIn() {
 
   return (
     <PopupLayout name={settings.name}>
-      <PopupFormLayout action='/sign-in' title={settings.title}>
+      <PopupFormLayout
+        name={settings.name}
+        action='/sign-in'
+        title={settings.title}
+      >
         <FormFieldset>
           {settings.inputs.map((input) => (
             <FormInput

@@ -44,7 +44,10 @@ export function PopupLayout({
         },
       )}
     >
-      <div className='fixed right-[16px] top-[16px] z-50 h-[24px] w-[24px] bg-[url("/images/close.svg")] bg-cover md:hidden'></div>
+      <button
+        onClick={toggle}
+        className='fixed right-[16px] top-[16px] z-50 h-[24px] w-[24px] bg-[url("/images/close.svg")] bg-cover md:hidden'
+      ></button>
       {children}
       <div
         ref={overlayRef}

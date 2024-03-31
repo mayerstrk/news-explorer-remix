@@ -53,7 +53,11 @@ export default function SignUpPopup() {
 
   return (
     <PopupLayout name={settings.name}>
-      <PopupFormLayout action='/sign-up' title={settings.title}>
+      <PopupFormLayout
+        name={settings.name}
+        action='/sign-up'
+        title={settings.title}
+      >
         <FormFieldset>
           {settings.inputs.map((input) => (
             <FormInput

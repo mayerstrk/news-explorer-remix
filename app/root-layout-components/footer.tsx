@@ -2,7 +2,7 @@ import { Link } from '@remix-run/react'
 
 export default function Footer({ signedIn }: { signedIn: boolean }) {
   return (
-    <section className='flex w-full flex-col gap-[38px] px-[16px] pb-[22px] pt-[20px] md:h-[64px] md:flex-row-reverse md:items-center md:justify-between md:px-[40px] xl:h-[80px] xl:px-[104px]'>
+    <section className='mx-auto flex w-full max-w-[1440px] flex-col gap-[38px] px-[16px] pb-[22px] pt-[20px] md:h-[64px] md:flex-row-reverse md:items-center md:justify-between md:px-[40px] xl:h-[80px] xl:px-[104px]'>
       <nav className='flex w-full justify-between text-[18px] leading-[18px] text-[#1A1B22] md:h-[24px] md:items-center md:justify-end md:gap-[40px] md:py-[21px]'>
         <ul className='flex h-[74px] flex-col items-center gap-[26px] md:flex-row md:gap-[40px]'>
           <li>

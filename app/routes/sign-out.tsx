@@ -2,7 +2,7 @@ import { ActionFunctionArgs, redirect } from '@vercel/remix'
 import { destroySession, getSession } from '~/session.server'
 
 export const loader = () => {
-  redirect('/')
+  return redirect('/')
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {

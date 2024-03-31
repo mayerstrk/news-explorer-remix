@@ -4,7 +4,7 @@ import { useUsername } from '~/hooks/zustand/use-current-user'
 export default function SavedArticlesHeader() {
   const username = useUsername()
   return (
-    <header className='flex w-full flex-col items-center justify-center px-[16px] pb-[32px] pt-[8px] md:px-[40px] md:pt-[24px] xl:pb-[56px] xl:pl-[104px] xl:pt-[40px]'>
+    <header className='mx-auto flex w-full max-w-[1440px] flex-col items-center justify-center px-[16px] pb-[32px] pt-[8px] md:px-[40px] md:pt-[24px] xl:pb-[56px] xl:pl-[104px] xl:pt-[40px]'>
       <div className='w-full max-w-[1920px] self-center'>
         <HeaderNavPlaceholder />
         <h2 className='mb-[16px] w-full text-[12px] leading-[24px] text-[#1A1B22]/50 md:text-[14px] xl:mb-[28px] xl:text-[18px]'>

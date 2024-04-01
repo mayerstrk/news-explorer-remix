@@ -43,10 +43,7 @@ export function NavBarPopupCloseButton() {
       type='button'
       onClick={toggle}
     >
-      <button
-        onClick={toggle}
-        className='h-[24px] w-[24px] bg-[url("../public/images/close.svg")] bg-cover'
-      ></button>
+      <div className='h-[24px] w-[24px] bg-[url("../public/images/close.svg")] bg-cover'></div>
     </button>
   )
 }

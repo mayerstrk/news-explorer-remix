@@ -69,7 +69,6 @@ export function PopupFormControls({
   isSubmitEnabled: boolean
 }) {
   const redirect = usePopupRedirect(settings.redirectFrom, settings.redirectTo)
-  console.log('isEnabled inner: ', isSubmitEnabled)
 
   return (
     <div className='flex w-full flex-col items-center'>

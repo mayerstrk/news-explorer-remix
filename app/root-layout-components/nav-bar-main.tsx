@@ -11,7 +11,6 @@ import { useLocation } from '@remix-run/react'
 
 export default function NavBarMain({ signedIn }: { signedIn: boolean }) {
   const location = useLocation()
-  console.log(location.pathname.split('/')[1])
   const color = location.pathname.split('/')[1] === 'home' ? 'white' : 'black'
 
   return (

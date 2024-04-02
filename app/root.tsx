@@ -10,14 +10,13 @@ import {
 } from '@remix-run/react'
 import styles from './tailwind.css?url'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
-import { ReactNode, useEffect } from 'react'
+import { useEffect } from 'react'
 import { NavMobilePopup } from './root-layout-components/nav-mobile-popup'
 import Footer from './root-layout-components/footer'
 import SignInPopup from './root-layout-components/sign-in-popup'
 import SignUpPopup from './root-layout-components/sign-up-popup'
 import { commitSession, getSession } from './session.server'
 import SignOutPopup from './root-layout-components/sign-out-popup'
-import { useClosePopups } from './hooks/zustand/use-popup'
 import { useCurrentUserActions } from './hooks/zustand/use-current-user'
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
@@ -34,11 +33,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return json(
     { signedIn: false, userData: null },
-    { headers: { 'Set-Cokkie': await commitSession(session) } },
+    { headers: { 'Set-Cookie': await commitSession(session) } },
   )
 }
 
-export function Layout({ children }: { children: ReactNode }) {
+export default function App() {
   const { signedIn, userData } = useLoaderData<typeof loader>()
   const { setEmail, setUsername } = useCurrentUserActions()
 
@@ -48,8 +47,6 @@ export function Layout({ children }: { children: ReactNode }) {
       setUsername(userData.username)
     }
   }, [signedIn, setEmail, setUsername, userData])
-
-  useClosePopups()()
 
   return (
     <html lang='en'>
@@ -74,15 +71,13 @@ export function Layout({ children }: { children: ReactNode }) {
         <SignUpPopup />
         <SignInPopup />
         <SignOutPopup />
-        <div className='flex-grow'>{children}</div>
+        <div className='flex-grow'>
+          <Outlet />
+        </div>
         <Footer signedIn={signedIn} />
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   )
-}
-
-export default function App() {
-  return <Outlet />
 }

@@ -1,8 +1,12 @@
 import { useFetcher } from '@remix-run/react'
 import clsx from 'clsx'
-import { ChangeEvent, ReactNode } from 'react'
+import { ChangeEvent, ReactNode, useEffect } from 'react'
 import { InputName } from '~/hooks/use-form'
-import { usePopupRedirect, usePopupToggle } from '~/hooks/zustand/use-popup'
+import {
+  useClosePopups,
+  usePopupRedirect,
+  usePopupToggle,
+} from '~/hooks/zustand/use-popup'
 import { PopupName, Route } from '~/utils/string-unions'
 
 export interface AuthPopupSettings {
@@ -35,6 +39,13 @@ export function PopupFormLayout({
 }) {
   const toggle = usePopupToggle(name)
   const fetcher = useFetcher()
+  const closePopups = useClosePopups()
+
+  useEffect(() => {
+    console.log('in use effect')
+    closePopups()
+  }, [fetcher.state, closePopups])
+
   return (
     <div
       className={clsx(

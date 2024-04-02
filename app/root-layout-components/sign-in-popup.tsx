@@ -38,12 +38,10 @@ export default function SignIn() {
   }
 
   const { values, handleChange } = useForm()
-  const [isSubmitEnabled, setIsSubmitEnabled] = useState(false)
+  const [isSubmitEnabled, setIsSubmitEnabled] = useState(true)
 
   useEffect(() => {
-    signinValidationSchema.isValid(values).then((valid) => {
-      setIsSubmitEnabled(valid)
-    })
+    setIsSubmitEnabled(signinValidationSchema.safeParse(values).success)
   }, [values])
 
   return (

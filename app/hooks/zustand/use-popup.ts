@@ -14,6 +14,7 @@ const initialState = {
   'sign-up': false,
   'nav-menu': false,
   'sign-out': false,
+  'sign-in-error': false,
 }
 
 export const usePopupStore = create<Store>((set) => ({

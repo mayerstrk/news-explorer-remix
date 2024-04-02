@@ -45,10 +45,9 @@ export default function SignUpPopup() {
   }
   const { values, handleChange } = useForm()
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false)
+
   useEffect(() => {
-    signupValidationSchema.isValid(values).then((valid) => {
-      setIsSubmitEnabled(valid)
-    })
+    setIsSubmitEnabled(signupValidationSchema.safeParse(values).success)
   }, [values])
 
   return (

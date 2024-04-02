@@ -1,37 +1,37 @@
 import { useState, type ChangeEvent } from 'react'
-import * as yup from 'yup'
+import { z } from 'zod'
 
-export const signinValidationSchema = yup.object().shape({
-  email: yup
+export const signinValidationSchema = z.object({
+  email: z
     .string()
     .email('Invalid email address')
-    .required('Email is required'),
-  password: yup
+    .min(1, { message: 'Email is required' }), // Updated from .nonempty
+  password: z
     .string()
-    .min(8, 'Password must be at least 8 characters long')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .matches(/[0-9]/, 'Password must contain at least one number')
-    .required('Password is required'),
+    .min(8, { message: 'Password must be at least 8 characters long' })
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .min(1, { message: 'Password is required' }), // Updated from .nonempty
 })
 
-export const signupValidationSchema = yup.object().shape({
-  username: yup
+export const signupValidationSchema = z.object({
+  username: z
     .string()
-    .required('Username is required')
-    .min(3, 'Username must be at least 3 characters long')
-    .max(20, 'Username cannot be longer than 20 characters'),
-  email: yup
+    .min(1, { message: 'Username is required' }) // Updated from .nonempty
+    .min(3, { message: 'Username must be at least 3 characters long' })
+    .max(20, { message: 'Username cannot be longer than 20 characters' }),
+  email: z
     .string()
     .email('Invalid email address')
-    .required('Email is required'),
-  password: yup
+    .min(1, { message: 'Email is required' }), // Updated from .nonempty
+  password: z
     .string()
-    .min(8, 'Password must be at least 8 characters long')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .matches(/[0-9]/, 'Password must contain at least one number')
-    .required('Password is required'),
+    .min(8, { message: 'Password must be at least 8 characters long' })
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .min(1, { message: 'Password is required' }), // Updated from .nonempty
 })
 
 type InputName = 'email' | 'password' | 'username'

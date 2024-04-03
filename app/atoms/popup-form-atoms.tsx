@@ -207,9 +207,9 @@ export function FormInput({
   onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
-    <div className='w-full md:h-[47px]'>
+    <div className='w-full'>
       <label
-        className='mb-[8px] w-full font-inter text-sm text-blue-500 md:mb-0  md:text-[12px]'
+        className='mb-[8px] w-full px-[10px] font-inter text-sm text-blue-500 md:mb-0  md:text-[12px]'
         htmlFor={htmlFor}
       >
         {label}
@@ -218,11 +218,11 @@ export function FormInput({
         className={clsx(
           'w-full', // dimensions
           'appearance-none', // misc
-          'rounded rounded-b-none border-b-[2px] focus:outline-none', // effects
-          'pb-[10px] md:p-0', // margin and padding
-          'font-inter leading-tight text-gray-700 md:text-[14px]', // typography
+          'rounded-lg border-b-[1px] focus:outline-none md:border-b-[2px]', // effects
+          'p-[10px]', // margin and padding
+          'font-inter text-gray-700 md:text-[14px]', // typography
           {
-            'border-red-400': error,
+            'border-b-[1px] border-red-400': error,
           },
         )}
         id={id}

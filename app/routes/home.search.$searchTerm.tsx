@@ -90,14 +90,14 @@ export function Loading() {
     >
       <div
         className={clsx(
-          'h-[74px] w-[74px]', 
-          'bg-[url("../public/images/Ellipse.svg")] bg-cover', 
+          'h-[74px] w-[74px]',
+          'bg-[url("/images/Ellipse.svg")] bg-cover',
         )}
       ></div>
       <p
         className={clsx(
           'text-[18px]', // typography
-          'text-[#b6bcbf]', 
+          'text-[#b6bcbf]',
         )}
       >
         Searching for news...
@@ -112,29 +112,29 @@ function NoArticle() {
       className={clsx(
         'flex flex-col items-center align-middle', // display
         'gap-[24px] px-[16px] pb-[80px] pt-[86px]', // margin and padding
-        'bg-[#F5F6F7]', 
+        'bg-[#F5F6F7]',
       )}
     >
       <div
         className={clsx(
-          'h-[74px] w-[74px]', 
-          'bg-[url("../public/images/not-found_v1.svg")] bg-cover', 
+          'h-[74px] w-[74px]',
+          'bg-[url("/images/not-found_v1.svg")] bg-cover',
         )}
       ></div>
       <p
         className={clsx(
           'font-robotoSlab text-[26px] leading-[30px]', // typography
-          'text-[#1A1B22]', 
+          'text-[#1A1B22]',
         )}
       >
         Nothing Found
       </p>
       <p
         className={clsx(
-          'w-[65%] max-w-[356px]', 
+          'w-[65%] max-w-[356px]',
           'text-center', // display
           'text-[18px]', // typography
-          'text-[#b6bcbf]', 
+          'text-[#b6bcbf]',
         )}
       >
         Sorry, but nothing matches your search terms

@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from '@vercel/remix'
+import { LoaderFunctionArgs } from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
 import {
   isRouteErrorResponse,
@@ -15,13 +15,26 @@ import {
 import { Article, getArticles as getMockArticles } from '~/data'
 import clsx from 'clsx'
 import { getSession } from '~/session.server'
+import NavBarMain from '~/root-layout-components/nav-bar-main'
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+type LoaderData = {
+  signedIn: boolean
+  amount: string
+  username: string
+  articles: Article[]
+}
+
+export const loader = async ({
+  request,
+}: LoaderFunctionArgs): Promise<LoaderData | Response> => {
+  // check if user is authenticated locally
   const session = await getSession(request.headers.get('Cookie'))
 
   if (!session.has('token')) {
     return redirect('/')
   }
+
+  // get articles
   const url = new URL(request.url)
   const amount = url.searchParams.get('amount') || '12'
 
@@ -31,36 +44,30 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw new Error(response.statusText, { cause: response })
   }
 
-  return json({ response, amount })
+  return {
+    articles: response,
+    amount,
+    username: session.get('username') || 'momo fake',
+    signedIn: true,
+  }
 }
 
 export default function Saved() {
+  const { signedIn, username, articles, amount } =
+    useLoaderData<typeof loader>()
   return (
     <>
-      <SavedArticlesHeader />
-      <Gallery />
+      <NavBarMain color='black' signedIn={signedIn} username={username} />
+      <SavedArticlesHeader username={username} />
+      <Gallery articles={articles} amount={amount} />
     </>
   )
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError()
-
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div>
-        <h1>Oops</h1>
-        <p>Status: {error.status}</p>
-        <p>{error.data.message}</p>
-      </div>
-    )
-  }
-
-  return <NoArticle />
-}
-
-function Gallery() {
-  const { response: articles, amount } = useLoaderData<typeof loader>()
+function Gallery({
+  articles,
+  amount,
+}: Pick<LoaderData, 'articles' | 'amount'>) {
   const resultsRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -93,7 +100,7 @@ function Loading() {
       <div
         className={clsx(
           'h-[74px] w-[74px]',
-          'bg-[url("../public/images/Ellipse.svg")] bg-cover',
+          'bg-[url("/images/Ellipse.svg")] bg-cover',
         )}
       ></div>
       <p
@@ -103,6 +110,22 @@ function Loading() {
       </p>
     </div>
   )
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError()
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div>
+        <h1>Oops</h1>
+        <p>Status: {error.status}</p>
+        <p>{error.data.message}</p>
+      </div>
+    )
+  }
+
+  return <NoArticle />
 }
 
 function NoArticle() {
@@ -117,7 +140,7 @@ function NoArticle() {
       <div
         className={clsx(
           'h-[74px] w-[74px]',
-          'bg-[url("../public/images/not-found_v1.svg")] bg-cover',
+          'bg-[url("/images/not-found_v1.svg")] bg-cover',
         )}
       ></div>
       <p

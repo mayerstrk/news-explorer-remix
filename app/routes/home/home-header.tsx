@@ -13,7 +13,7 @@ export default function HomeHeader() {
         className={clsx(
           'relative flex w-full flex-col items-center', // display
           'h-[95vh] max-h-[536px] md:max-h-[400px]  xl:max-h-[576px]', // dimensions
-          "bg-[url('../public/images/82f1206f112335e2ee4d938ba64f02d6.jpeg')] bg-cover bg-center", // background
+          "bg-[url('/images/82f1206f112335e2ee4d938ba64f02d6.jpeg')] bg-cover bg-center", // background
           'before:absolute before:inset-0 before:bg-black before:opacity-40', // pseudo-elements
         )}
       >
@@ -82,7 +82,7 @@ export function HeaderSearch() {
 
   const debouncedNavigate = useDebouncedCallback(() => {
     handleSubmit()
-  }, 1200)
+  }, 700)
 
   return (
     <div className='w-full'>

@@ -1,5 +1,4 @@
 import { createCookieSessionStorage } from '@vercel/remix'
-import { env } from 'environment-config'
 
 type SessionData = {
   username: string | null
@@ -13,11 +12,11 @@ type SessionFlashData = {
 export const { getSession, commitSession, destroySession } =
   createCookieSessionStorage<SessionData, SessionFlashData>({
     cookie: {
+      secure: true,
       name: 'session',
       sameSite: 'strict',
       path: '/',
       maxAge: 60 * 60 * 24 * 7,
       httpOnly: true,
-      secrets: [env.COOKIE_SECRET],
     },
   })

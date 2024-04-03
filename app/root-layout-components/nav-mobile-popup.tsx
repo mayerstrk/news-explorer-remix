@@ -9,7 +9,13 @@ import { ReactNode } from 'react'
 import { Size } from '~/utils/enums'
 import { PopupLayout } from '../atoms/popup-atoms'
 
-export function NavMobilePopup({ signedIn }: { signedIn: boolean }) {
+export function NavMobilePopup({
+  signedIn,
+  username,
+}: {
+  signedIn: boolean
+  username: string
+}) {
   return (
     <NavMobilePopupLayout>
       <NavBarLayout>
@@ -18,7 +24,12 @@ export function NavMobilePopup({ signedIn }: { signedIn: boolean }) {
       </NavBarLayout>
       <NavItemsLayout>
         <NavRouteItems color='white' signedIn={signedIn} />
-        <AuthButton signedIn={signedIn} color='white' size={Size.sm} />
+        <AuthButton
+          signedIn={signedIn}
+          color='white'
+          size={Size.sm}
+          username={username}
+        />
       </NavItemsLayout>
     </NavMobilePopupLayout>
   )
@@ -43,7 +54,7 @@ export function NavBarPopupCloseButton() {
       type='button'
       onClick={toggle}
     >
-      <div className='h-[24px] w-[24px] bg-[url("../public/images/close.svg")] bg-cover'></div>
+      <div className='h-[24px] w-[24px] bg-[url("/images/close.svg")] bg-cover'></div>
     </button>
   )
 }

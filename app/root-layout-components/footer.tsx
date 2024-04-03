@@ -17,10 +17,10 @@ export default function Footer({ signedIn }: { signedIn: boolean }) {
         <div>
           <ul className='flex items-center gap-[26px]'>
             <a href='https://github.com/Mayerstrk'>
-              <li className='h-[20px] w-[20px] bg-[url("../public/images/github.svg")] bg-contain'></li>
+              <li className='h-[20px] w-[20px] bg-[url("/images/github.svg")] bg-contain'></li>
             </a>
             <a href='https://github.com/Mayerstrk'>
-              <li className='h-[20px] w-[20px] bg-[url("../public/images/fb.svg")] bg-contain'></li>
+              <li className='h-[20px] w-[20px] bg-[url("/images/fb.svg")] bg-contain'></li>
             </a>
           </ul>
         </div>

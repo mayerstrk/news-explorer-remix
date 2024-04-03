@@ -1,13 +1,6 @@
-import { useEffect, useState } from 'react'
 import { PopupLayout } from '~/atoms/popup-atoms'
-import {
-  FormInput,
-  PopupFormControls,
-  PopupFormLayout,
-  AuthPopupSettings,
-  FormFieldset,
-} from '~/atoms/popup-form-atoms'
-import { signinValidationSchema, useForm } from '~/hooks/use-form'
+import { AuthPopupForm, AuthPopupSettings } from '~/atoms/popup-form-atoms'
+import { signinValidationSchema } from '~/hooks/use-form'
 
 export default function SignIn() {
   const settings: AuthPopupSettings = {
@@ -37,39 +30,13 @@ export default function SignIn() {
     },
   }
 
-  const { values, handleChange } = useForm()
-  const [isSubmitEnabled, setIsSubmitEnabled] = useState(true)
-
-  useEffect(() => {
-    setIsSubmitEnabled(signinValidationSchema.safeParse(values).success)
-  }, [values])
-
   return (
     <PopupLayout name={settings.name}>
-      <PopupFormLayout
-        name={settings.name}
+      <AuthPopupForm
+        settings={settings}
         action='/sign-in'
-        title={settings.title}
-      >
-        <FormFieldset>
-          {settings.inputs.map((input) => (
-            <FormInput
-              key={input.id}
-              label={input.label}
-              htmlFor={input.htmlFor}
-              id={input.id}
-              type={input.type}
-              placeholder={input.placeholder}
-              value={values[input.id] ?? ''}
-              onChange={handleChange}
-            />
-          ))}
-        </FormFieldset>
-        <PopupFormControls
-          settings={settings.controls}
-          isSubmitEnabled={isSubmitEnabled}
-        />
-      </PopupFormLayout>
+        validationSchema={signinValidationSchema}
+      />
     </PopupLayout>
   )
 }

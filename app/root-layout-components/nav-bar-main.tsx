@@ -1,18 +1,23 @@
 import { Size } from '~/utils/enums'
 import NavBarLayout, {
   AuthButton,
+  NavBarColorScheme,
   NavBarControls,
   NavBarLogo,
   NavItemsLayout,
   NavMenuButton,
   NavRouteItems,
 } from '../atoms/nav-atoms'
-import { useLocation } from '@remix-run/react'
 
-export default function NavBarMain({ signedIn }: { signedIn: boolean }) {
-  const location = useLocation()
-  const color = location.pathname.split('/')[1] === 'home' ? 'white' : 'black'
-
+export default function NavBarMain({
+  signedIn,
+  username,
+  color,
+}: {
+  color: NavBarColorScheme
+  signedIn: boolean
+  username: string | null
+}) {
   return (
     <NavBarLayout>
       <div className='mx-auto flex h-full w-full max-w-[1232px] items-center justify-between self-center'>
@@ -22,7 +27,12 @@ export default function NavBarMain({ signedIn }: { signedIn: boolean }) {
             <NavItemsLayout>
               <NavRouteItems signedIn={signedIn} color={color} />
             </NavItemsLayout>
-            <AuthButton signedIn={signedIn} size={Size.sm} color={color} />
+            <AuthButton
+              signedIn={signedIn}
+              size={Size.sm}
+              color={color}
+              username={username || ''}
+            />
           </div>
           <NavMenuButton color={color} />
         </NavBarControls>

@@ -1,12 +1,15 @@
-import { useFetcher } from '@remix-run/react'
+import { useFetcher, useLocation } from '@remix-run/react'
 import clsx from 'clsx'
-import { ChangeEvent, ReactNode, useEffect } from 'react'
-import { InputName } from '~/hooks/use-form'
+import { ChangeEvent, useEffect, useState } from 'react'
+import { SomeZodObject } from 'zod'
+import { InputName, signinValidationSchema, useForm } from '~/hooks/use-form'
 import {
   useClosePopups,
   usePopupRedirect,
   usePopupToggle,
 } from '~/hooks/zustand/use-popup'
+import { SigninAction } from '~/routes/sign-in'
+import { SignupAction } from '~/routes/sign-up'
 import { PopupName, Route } from '~/utils/string-unions'
 
 export interface AuthPopupSettings {
@@ -26,25 +29,88 @@ export interface AuthPopupSettings {
     redirectTo: PopupName
   }
 }
-export function PopupFormLayout({
-  name,
-  children,
-  title,
+export function AuthPopupForm({
+  settings,
   action,
+  validationSchema,
 }: {
-  name: PopupName
-  children: ReactNode
-  title: string
+  settings: AuthPopupSettings
   action: Route
+  validationSchema: SomeZodObject
 }) {
-  const toggle = usePopupToggle(name)
-  const fetcher = useFetcher()
-  const closePopups = useClosePopups()
+  signinValidationSchema
+  const [isSubmitEnabled, setIsSubmitEnabled] = useState(true)
+  const [submitButtonText, setSubmitButtontText] = useState(
+    settings.controls.mainText,
+  )
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
 
+  const toggle = usePopupToggle(settings.name)
+  const fetcher = useFetcher<SigninAction | SignupAction>()
+  const closePopups = useClosePopups()
+  const redirect = usePopupRedirect(
+    settings.controls.redirectFrom,
+    settings.controls.redirectTo,
+  )
+  const locationPathname = useLocation().pathname
+  const { values, handleChange } = useForm()
+
+  // Set submit error on ferch error
   useEffect(() => {
-    console.log('in use effect')
+    if (fetcher.data?.success === false) {
+      setFormErrors((f) => ({ ...f, submit: fetcher.data?.message || 'Error' }))
+    }
+  }, [fetcher.data, closePopups])
+
+  // Set submit error to empty string when input values change
+  useEffect(() => {
+    setFormErrors((f) => ({ ...f, submit: '' }))
+  }, [values])
+
+  // Set formErrors on input value change
+  useEffect(() => {
+    const result = validationSchema.safeParse(values)
+
+    if (result.success) {
+      setIsSubmitEnabled(true)
+      setFormErrors({})
+      return
+    }
+    setIsSubmitEnabled(false)
+    const newErrors = result.error.issues.reduce<typeof formErrors>(
+      (acc, currentIssue) => {
+        const path = currentIssue.path[0]
+        if (!acc[path]) {
+          acc[path] = currentIssue.message
+        }
+        return acc
+      },
+      {},
+    )
+
+    setFormErrors(newErrors)
+  }, [values, validationSchema])
+
+  // Set submit button text bsaed on fetcher state
+  useEffect(() => {
+    switch (fetcher.state) {
+      case 'submitting':
+        setSubmitButtontText('Loading...')
+        break
+      case 'idle':
+        setSubmitButtontText(settings.controls.mainText)
+        break
+      default:
+        break
+    }
+  }, [fetcher.state, closePopups, settings.controls.mainText])
+
+  const thereAreErrors = Object.keys(formErrors).length > 0
+
+  // close popup on redirect
+  useEffect(() => {
     closePopups()
-  }, [fetcher.state, closePopups])
+  }, [locationPathname, closePopups])
 
   return (
     <div
@@ -63,58 +129,66 @@ export function PopupFormLayout({
         onClick={toggle}
       ></button>
       <h2 className='mb-[18px] self-start text-2xl font-bold md:text-[24px]'>
-        {title}
+        {settings.title}
       </h2>
       <fetcher.Form method='POST' action={action} className='w-full'>
-        {children}
+        <fieldset className='mb-[23px] flex w-full flex-col gap-[30px] md:mb-[39px] '>
+          {settings.inputs.map((input) => (
+            <div key={input.id} className='flex flex-col gap-5'>
+              <FormInput
+                error={formErrors[input.htmlFor] ? true : false}
+                label={input.label}
+                htmlFor={input.htmlFor}
+                id={input.id}
+                type={input.type}
+                placeholder={input.placeholder}
+                value={values[input.id] ?? ''}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+        </fieldset>
+        <div className='flex w-full flex-col items-center'>
+          <em
+            className={clsx(
+              'mb-[20px] w-full rounded-2xl p-2 px-4 text-center md:text-sm',
+              {
+                ' bg-gray-100 text-gray-400 ': !thereAreErrors,
+                'border-[0.2px] border-gray-100 bg-white text-red-400 shadow-sm':
+                  thereAreErrors,
+              },
+            )}
+          >
+            {Object.values(formErrors)[0] || 'looks good!'}
+          </em>
+          <button
+            className={clsx(
+              'mb-[16px] w-full rounded-full bg-[#E6E8EB] py-[20px] font-bold text-[#B6BCBF]  focus:outline-none  md:text-[18px]',
+              {
+                ' bg-blue-500 text-white hover:bg-[#347EFF] active:bg-[#2A65CC]':
+                  isSubmitEnabled,
+              },
+            )}
+            type='submit'
+            disabled={!isSubmitEnabled}
+          >
+            {submitButtonText}
+          </button>
+          <button
+            type='button'
+            className='inline-block align-baseline text-sm text-blue-500 hover:text-blue-800 md:text-[14px]'
+            onClick={redirect}
+          >
+            <span className='text-black'>or</span> {settings.controls.orText}
+          </button>
+        </div>
       </fetcher.Form>
     </div>
   )
 }
 
-export function PopupFormControls({
-  settings,
-  isSubmitEnabled,
-}: {
-  settings: AuthPopupSettings['controls']
-  isSubmitEnabled: boolean
-}) {
-  const redirect = usePopupRedirect(settings.redirectFrom, settings.redirectTo)
-
-  return (
-    <div className='flex w-full flex-col items-center'>
-      <button
-        className={clsx(
-          'mb-[16px] w-full rounded-full bg-[#E6E8EB] py-[20px] font-bold text-[#B6BCBF]  focus:outline-none  md:text-[18px]',
-          {
-            ' bg-blue-500 text-white hover:bg-[#347EFF] active:bg-[#2A65CC]':
-              isSubmitEnabled,
-          },
-        )}
-        type='submit'
-        disabled={!isSubmitEnabled}
-      >
-        {settings.mainText}
-      </button>
-      <button
-        type='button'
-        className='inline-block align-baseline text-sm text-blue-500 hover:text-blue-800 md:text-[14px]'
-        onClick={redirect}
-      >
-        <span className='text-black'>or</span> {settings.orText}
-      </button>
-    </div>
-  )
-}
-export function FormFieldset({ children }: { children: ReactNode }) {
-  return (
-    <fieldset className='mb-[23px] flex w-full flex-col gap-[30px] md:mb-[39px] '>
-      {children}
-    </fieldset>
-  )
-}
-
 export function FormInput({
+  error,
   label,
   htmlFor,
   id,
@@ -124,6 +198,7 @@ export function FormInput({
   onChange,
 }: {
   label: string
+  error: boolean
   htmlFor: string
   id: string
   type: string
@@ -146,6 +221,9 @@ export function FormInput({
           'rounded rounded-b-none border-b-[2px] focus:outline-none', // effects
           'pb-[10px] md:p-0', // margin and padding
           'font-inter leading-tight text-gray-700 md:text-[14px]', // typography
+          {
+            'border-red-400': error,
+          },
         )}
         id={id}
         name={htmlFor}

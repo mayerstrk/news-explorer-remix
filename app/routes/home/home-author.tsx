@@ -20,7 +20,7 @@ export default function HomeAuthor() {
       <div
         className={clsx(
           'min-h-[272px] min-w-[272px] md:min-h-[232px] md:min-w-[232px] xl:min-h-[464px] xl:min-w-[464px]', // dimesions
-          'bg-[url("../public/images/IMG_20231104_141259_716.jpg")]  bg-cover', // background
+          'bg-[url("/images/IMG_20231104_141259_716.jpg")]  bg-cover', // background
           'rounded-full', // effects
         )}
       ></div>

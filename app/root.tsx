@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
   json,
   useLoaderData,
+  useRouteError,
 } from '@remix-run/react'
 import styles from './tailwind.css?url'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
@@ -17,7 +18,6 @@ import SignInPopup from './root-layout-components/sign-in-popup'
 import SignUpPopup from './root-layout-components/sign-up-popup'
 import { commitSession, getSession } from './session.server'
 import SignOutPopup from './root-layout-components/sign-out-popup'
-import { useCurrentUserActions } from './hooks/zustand/use-current-user'
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
 
@@ -27,7 +27,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (session.has('token')) {
     return json({
       signedIn: true,
-      userData: { email: 'momo@gmail.com', username: 'Elise' },
+      userData: { username: session.get('username') },
     })
   }
 
@@ -39,14 +39,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function App() {
   const { signedIn, userData } = useLoaderData<typeof loader>()
-  const { setEmail, setUsername } = useCurrentUserActions()
 
-  useEffect(() => {
-    if (userData) {
-      setEmail(userData.email)
-      setUsername(userData.username)
-    }
-  }, [signedIn, setEmail, setUsername, userData])
+  const username = userData?.username
 
   return (
     <html lang='en'>
@@ -66,8 +60,7 @@ export default function App() {
       </head>
       {/* gobal styles here */}
       <body className='relative flex min-h-screen flex-col font-roboto'>
-        <NavBarMain signedIn={signedIn} />
-        <NavMobilePopup signedIn={signedIn} />
+        <NavMobilePopup username={username || ''} signedIn={signedIn} />
         <SignUpPopup />
         <SignInPopup />
         <SignOutPopup />
@@ -81,3 +74,5 @@ export default function App() {
     </html>
   )
 }
+
+export type RootLoader = typeof loader

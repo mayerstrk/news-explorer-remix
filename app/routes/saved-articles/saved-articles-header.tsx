@@ -1,8 +1,10 @@
 import HeaderNavPlaceholder from '~/atoms/header-atoms'
-import { useUsername } from '~/hooks/zustand/use-current-user'
 
-export default function SavedArticlesHeader() {
-  const username = useUsername()
+export default function SavedArticlesHeader({
+  username,
+}: {
+  username: string
+}) {
   return (
     <header className='mx-auto flex w-full max-w-[1440px] flex-col items-center justify-center px-[16px] pb-[32px] pt-[8px] md:px-[40px] md:pt-[24px] xl:pb-[56px] xl:pl-[104px] xl:pt-[40px]'>
       <div className='w-full max-w-[1920px] self-center'>

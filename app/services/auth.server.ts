@@ -1,15 +1,11 @@
-import requestBuilder from './request-builder'
+import requestBuilder from './request-builder.server'
 
 export const createUser = requestBuilder<
-  { message: string },
+  { data: { message: string } },
   { email: string; password: string; name: string }
 >('/signup', { method: 'POST' })
 
 export const signIn = requestBuilder<
-  { message: string },
+  { data: { message: string; username: string } },
   { email: string; password: string }
 >('/signin', { method: 'POST' })
-
-export const signOut = requestBuilder<{ message: string }>('/signout', {
-  method: 'POST',
-})

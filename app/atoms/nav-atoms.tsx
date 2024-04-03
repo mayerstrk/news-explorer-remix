@@ -1,7 +1,6 @@
 import { Link, useLocation } from '@remix-run/react'
 import clsx from 'clsx'
 import { ReactNode } from 'react'
-import { useUsername } from '~/hooks/zustand/use-current-user'
 import { usePopupToggle } from '~/hooks/zustand/use-popup'
 import { Size } from '~/utils/enums'
 import { sameFirstSegment } from '~/utils/helpers'
@@ -144,7 +143,7 @@ export function NavItem({
       )}
     >
       <li className='flex h-full items-center justify-start text-start'>
-        <Link onClick={toggle} to={to} prefetch='render'>
+        <Link onClick={toggle} to={to} prefetch='intent'>
           {text}
         </Link>
       </li>
@@ -156,14 +155,15 @@ export function AuthButton({
   signedIn,
   size,
   color,
+  username,
 }: {
   signedIn: boolean
   size: Size
   color: NavBarColorScheme
+  username: string | null
 }) {
   const toggleSignInPopup = usePopupToggle('sign-in')
   const toggleSignOutPopup = usePopupToggle('sign-out')
-  const currentUsername = useUsername()
 
   const handleClick = async () => {
     if (signedIn) {
@@ -191,7 +191,7 @@ export function AuthButton({
       )}
       onClick={handleClick}
     >
-      {signedIn === false ? 'Sign in' : currentUsername}
+      {signedIn === false ? 'Sign in' : username}
       {signedIn && (
         <div
           className={clsx(

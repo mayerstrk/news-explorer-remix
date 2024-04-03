@@ -1,46 +1,49 @@
-import { Links, Meta, Scripts, useRouteError } from '@remix-run/react'
-import { ActionFunctionArgs, redirect } from '@vercel/remix'
-import { PopupLayout } from '~/atoms/popup-atoms'
-import { signIn } from '~/services/auth'
+import { ActionFunctionArgs, json, redirect } from '@vercel/remix'
+import invariant from 'tiny-invariant'
+import { signIn } from '~/services/auth.server'
 import { getSession, commitSession } from '~/session.server'
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  try {
-    const { response } = await signIn({
-      email: 'meme@gmail.com',
-      password: 'Qq2123123',
+  const formData = await request.formData()
+  const email = String(formData.get('email'))
+  const password = String(formData.get('password'))
+
+  invariant(email, 'email is required')
+  invariant(password, 'password is required')
+  console.log('@sign-in: attempting sign in...')
+  const { success, response, token } = await signIn({
+    email,
+    password,
+  })
+
+  if (!success) {
+    console.log('   @sign-in: sign in failed')
+    return json({
+      success: false,
+      message: response.message || 'Unauthorized',
+      status: response.status || 401,
     })
-    console.log(response)
-  } catch (error) {
-    console.error(error)
-    throw error
   }
 
+  if (!token) {
+    return json({
+      success: false,
+      message: 'No cookie provided',
+      status: 500,
+    })
+  }
+
+  console.log('   @sign-in: sign in success')
+
   const session = await getSession(request.headers.get('Cookie'))
+  session.set('username', response.data.username)
+  session.set('token', token)
 
-  session.set('token', 'fakeToken')
-
-  return redirect('/', {
+  return redirect('/saved-articles', {
     headers: {
       'Set-Cookie': await commitSession(session),
     },
   })
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError()
-  console.error(error)
-  return (
-    <html lang='en'>
-      <head>
-        <title>Oh no!</title>
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {/* add the UI you want your users to see */}
-        <Scripts />
-      </body>
-    </html>
-  )
-}
+export type SigninAction = typeof action

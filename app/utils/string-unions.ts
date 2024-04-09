@@ -13,6 +13,7 @@ export type PopupName =
   | 'error'
   | 'notify'
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-export type ApiPublicEndpoint = '/signin' | '/signup' | '/signout'
+export type ApiPublicEndpoint = '/signin' | '/signup' | '/signout' | '/articles'
 export type ApiProtectedEndpoint = '/users/me'
 export type ApiEndpoint = ApiPublicEndpoint | ApiProtectedEndpoint
+export type NewsApiEnpoint = '/top-headlines' | '/everything'

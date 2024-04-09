@@ -28,11 +28,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (!token) {
     return json({
       success: false,
-      message: 'No cookie provided',
+      message: 'No token provided',
       status: 500,
     })
   }
 
+  console.log('   @sign-in: token found = ', token)
   console.log('   @sign-in: sign in success')
 
   const session = await getSession(request.headers.get('Cookie'))

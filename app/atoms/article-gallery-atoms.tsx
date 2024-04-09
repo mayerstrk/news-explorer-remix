@@ -1,7 +1,22 @@
-import { Link } from '@remix-run/react'
+import { Link, useLocation, useNavigation } from '@remix-run/react'
 import clsx from 'clsx'
-import { ReactNode, RefObject, useCallback, useState } from 'react'
-import { Article } from '~/data'
+import { ReactNode, RefObject, useCallback, useEffect, useState } from 'react'
+import { Loading } from '~/routes/home.search.$searchTerm'
+import { DBArticle } from '~/services/articles.server'
+
+export type Article = {
+  source: {
+    id: string | null
+    name: string
+  }
+  author: string | null
+  title: string | null
+  description: string | null
+  url: string
+  urlToImage: string | null
+  publishedAt: string
+  content: string
+}
 
 export function ArticleGalleryLayout({
   children,
@@ -14,11 +29,24 @@ export function ArticleGalleryLayout({
   amount: string
   topRef: RefObject<HTMLElement>
 }) {
+  const location = useLocation()
+  const navigation = useNavigation()
+
   const scrollToTop = useCallback(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [topRef])
 
-  return (
+  useEffect(() => {
+    console.log(navigation)
+  }, [navigation])
+
+  useEffect(() => {
+    console.log(location)
+  }, [location])
+
+  return navigation.state === 'loading' && !navigation.location.state ? (
+    <Loading />
+  ) : (
     <>
       <section
         id='gallery'
@@ -93,6 +121,7 @@ export function ArticleGalleryLayout({
               'flex flex-col items-center', // display
             )}
           >
+            {navigation.location?.state?.showMore && <Loading />}
             <Link
               preventScrollReset={true}
               className={clsx(
@@ -105,6 +134,7 @@ export function ArticleGalleryLayout({
               )}
               to={`?amount=${Number(amount) + 6}`}
               type='button'
+              state={{ showMore: true }}
             >
               Show More
             </Link>
@@ -132,71 +162,50 @@ export function ArticleCard({
   children,
   data,
 }: {
-  children: ReactNode
-  data: Article
+  children: React.ReactNode
+  data: Article | DBArticle
 }) {
+  const [noImage, setNoImage] = useState(false)
+
+  const isArticle = 'urlToImage' in data && 'publishedAt' in data
+
+  const imageUrl = isArticle ? data.urlToImage : data.image
+  const title = data.title
+  const content = isArticle ? data.content : data.text
+  const date = isArticle
+    ? data.publishedAt.split('T')[0]
+    : data.date.toISOString().split('T')[0]
+  const sourceName = isArticle ? data.source.name : data.source
+
   return (
-    <li
-      className={clsx(
-        'relative mx-auto flex flex-col rounded-lg', //positioning
-        'h-[440px] w-full md:h-[420px] md:w-[224px] xl:h-[576px] xl:w-[400px]', //dimensions
-        'bg-white', //background
-        'shadow-sm', //effects
-        'shadow-gray-100', //effects
-      )}
-    >
+    <li className='relative mx-auto flex h-[440px] w-full flex-col rounded-lg bg-white shadow-sm shadow-gray-100 md:h-[420px] md:w-[224px] xl:h-[576px] xl:w-[400px]'>
       {children}
-      <img
-        src={data.image}
-        alt={data.title}
-        className='h-[196px] w-full rounded-t-lg object-cover md:h-[150px] xl:h-[272px]'
-      />
-      <div
-        className={clsx(
-          'flex flex-grow flex-col', //display
-          'p-[16px] xl:px-[24px] xl:pb-[24px] xl:pt-[17px]', // spacing
-        )}
-      >
-        <p
-          className={clsx(
-            'mb-[10px]', //margin and padding
-            'font-sspro text-[18px] leading-[24px]', //typography
-            'text-[#b6bcbf]', //background
-          )}
-        >
-          {new Date(data.date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
+      {imageUrl && !noImage ? (
+        <img
+          src={imageUrl}
+          alt={title || 'Article image'}
+          className='mb-16px md:-min-h-[150px] min-h-[196px] w-full rounded-t-lg object-cover xl:min-h-[272px]'
+          onError={() => setNoImage(true)}
+        />
+      ) : (
+        <div className='mb-16px md:-min-h-[150px] flex min-h-[196px] w-full items-center justify-center rounded-t-lg bg-pink-300 object-cover p-16 md:p-6 xl:min-h-[272px]'>
+          <p className='truncate text-wrap font-sspro text-sm font-semibold text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.2)]'>
+            {title || 'Article image'}
+          </p>
+        </div>
+      )}
+      <div className='flex flex-grow flex-col overflow-hidden p-[16px]'>
+        <p className='mb-[10px] font-sspro text-[18px] leading-[24px] text-[#b6bcbf] xl:px-[24px] xl:pt-[17px]'>
+          {date}
         </p>
-        <h2
-          className={clsx(
-            'mb-[14px]', //margin and padding
-            'w-full', //dimensions
-            'break-words font-robotoSlab text-[22px] leading-[24px] xl:text-[26px] xl:leading-[30px]', //typography
-            'text-[#1A1B22]', //background
-          )}
-        >
-          {data.title}
+        <h2 className='mb-[14px] min-h-[24px] w-full truncate font-robotoSlab text-[22px] leading-[24px] text-[#1A1B22] xl:px-[24px] xl:text-[26px] xl:leading-[30px]'>
+          {title}
         </h2>
-        <p
-          className={clsx(
-            'mb-[8px]', //margin and padding
-            'flex flex-grow', //display
-            'text-[16px] leading-[22px]', //typography
-            'text-[#1A1B22]', //background
-          )}
-        >
-          {data.text}
+        <p className='mb-[8px] flex-grow overflow-auto text-wrap p-[16px] text-[16px] leading-[22px] text-[#1A1B22] xl:px-[24px]'>
+          {content}
         </p>
-        <p
-          className={clsx(
-            'font-robotoSlab text-[16px] font-bold leading-[20px]', //typography
-            'text-[#B6BCBF]', //background
-          )}
-        >
-          {data.source.toUpperCase()}
+        <p className='font-robotoSlab text-[16px] font-bold leading-[20px] text-[#B6BCBF] xl:px-[24px]'>
+          {sourceName.toUpperCase()}
         </p>
       </div>
     </li>

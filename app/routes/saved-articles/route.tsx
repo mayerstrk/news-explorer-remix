@@ -1,27 +1,23 @@
 import { LoaderFunctionArgs } from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
-import {
-  isRouteErrorResponse,
-  redirect,
-  useLoaderData,
-  useRouteError,
-} from '@remix-run/react'
+import { redirect, useLoaderData } from '@remix-run/react'
 import { Suspense, useRef } from 'react'
 import {
   ArticleCard,
   ArticleGalleryLayout,
   SavedArticleControls,
 } from '~/atoms/article-gallery-atoms'
-import { Article, getArticles as getMockArticles } from '~/data'
 import clsx from 'clsx'
-import { getSession } from '~/session.server'
+import { destroySession, getSession } from '~/session.server'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
+import { DBArticle, getSavedArticles } from '~/services/articles.server'
+import { authenticateUser } from '~/services/auth.server'
 
 type LoaderData = {
   signedIn: boolean
   amount: string
   username: string
-  articles: Article[]
+  articles: DBArticle[]
 }
 
 export const loader = async ({
@@ -30,24 +26,38 @@ export const loader = async ({
   // check if user is authenticated locally
   const session = await getSession(request.headers.get('Cookie'))
 
-  if (!session.has('token')) {
-    return redirect('/')
+  const token = session.get('token')
+
+  if (!token) {
+    return redirect('/', {
+      headers: { 'Set-Cookie': await destroySession(session) },
+    })
+  }
+
+  const { success: validationSuccess, response: validationResponse } =
+    await authenticateUser(token)
+
+  if (!validationSuccess) {
+    return redirect('/', {
+      headers: { 'Set-Cookie': await destroySession(session) },
+    })
   }
 
   // get articles
   const url = new URL(request.url)
   const amount = url.searchParams.get('amount') || '12'
 
-  const { success, response } = getMockArticles('Saved article', Number(amount))
+  const { success, response } = await getSavedArticles(token)
 
   if (!success) {
-    throw new Error(response.statusText, { cause: response })
+    console.error(response.message, { cause: response })
+    return redirect('/')
   }
 
   return {
     articles: response,
     amount,
-    username: session.get('username') || 'momo fake',
+    username: validationResponse.data.name,
     signedIn: true,
   }
 }
@@ -72,16 +82,20 @@ function Gallery({
 
   return (
     <Suspense fallback={<Loading />}>
-      <ArticleGalleryLayout title='' topRef={resultsRef} amount={amount}>
-        {articles.map((article) => (
-          <SavedArticleCard data={article} key={article._id} />
-        ))}
-      </ArticleGalleryLayout>
+      {articles.length > 0 ? (
+        <ArticleGalleryLayout title='' topRef={resultsRef} amount={amount}>
+          {articles.map((article) => (
+            <SavedArticleCard data={article} key={article.article_id} />
+          ))}
+        </ArticleGalleryLayout>
+      ) : (
+        <NoArticle />
+      )}
     </Suspense>
   )
 }
 
-function SavedArticleCard({ data }: { data: Article }) {
+function SavedArticleCard({ data }: { data: DBArticle }) {
   return (
     <ArticleCard data={data}>
       <SavedArticleControls keyword={data.keyword} />
@@ -112,28 +126,13 @@ function Loading() {
   )
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError()
-
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div>
-        <h1>Oops</h1>
-        <p>Status: {error.status}</p>
-        <p>{error.data.message}</p>
-      </div>
-    )
-  }
-
-  return <NoArticle />
-}
-
 function NoArticle() {
   return (
     <section
       className={clsx(
-        'flex flex-col items-center align-middle', // display
+        'flex flex-col items-center justify-center', // display
         'gap-[24px] px-[16px] pb-[80px] pt-[86px]', // margin and padding
+        'w-100', //dimensions
         'bg-[#F5F6F7]',
       )}
     >

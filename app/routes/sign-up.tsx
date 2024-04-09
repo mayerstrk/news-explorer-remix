@@ -17,9 +17,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   invariant(password, 'password is required')
   invariant(username, 'username is required')
 
-  const { success: signupSuccess, response: signupResponse } = await createUser(
-    { email, password, name: username },
-  )
+  const {
+    success: signupSuccess,
+    response: signupResponse,
+    token,
+  } = await createUser({ email, password, name: username })
 
   if (!signupSuccess) {
     return json({
@@ -29,11 +31,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     })
   }
 
+  if (!token) {
+    return json({
+      success: false,
+      message: 'No token provided',
+      status: 500,
+    })
+  }
+
   const session = await getSession(request.headers.get('Cookie'))
-
   session.set('username', username)
+  session.set('token', token)
 
-  return redirect('/', {
+  return redirect('/saved-articles', {
     headers: {
       'Set-Cookie': await commitSession(session),
     },

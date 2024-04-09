@@ -1,74 +1,104 @@
-import { LoaderFunctionArgs, json } from '@vercel/remix'
-import {
-  isRouteErrorResponse,
-  useLoaderData,
-  useRouteError,
-} from '@remix-run/react'
+import { LoaderFunctionArgs, json, redirect } from '@vercel/remix'
+import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
-import { Suspense, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import {
+  Article,
   ArticleCard,
   ArticleGalleryLayout,
   ResultArticleControls,
 } from '~/atoms/article-gallery-atoms'
-import { Article, getArticles as getMockArticles } from '~/data'
+
+import { destroySession, getSession } from '~/session.server'
+import { authenticateUser } from '~/services/auth.server'
+import { getMockArticles } from '~/mock-articles'
+import { franc } from 'franc'
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+  // Validation
+  const session = await getSession(request.headers.get('Cookie'))
+
+  const token = session.get('token')
+
+  if (token) {
+    const { success: validationSuccess } = await authenticateUser(token)
+
+    if (!validationSuccess) {
+      return redirect('/home', {
+        headers: { 'Set-Cookie': await destroySession(session) },
+      })
+    }
+  }
+
+  // Route specific
   invariant(params.searchTerm, 'Missing searchTerm param')
   const url = new URL(request.url)
   const amount = url.searchParams.get('amount') || '6'
 
-  const { success, response } = getMockArticles(
-    params.searchTerm,
-    Number(amount),
-  )
+  // const currentDate = new Date()
+  // const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+  // const to = currentDate.toISOString().split('T')[0]
+  // const from = sevenDaysAgo.toISOString().split('T')[0]
+  //
+  // const endpoint =
+  //   `/everything?` +
+  //   `q=${encodeURIComponent(params.searchTerm)}&` + // Ensure the search term is URL-encoded
+  //   `from=${from}&` +
+  //   `to=${to}&` +
+  //   `pageSize=100&` +
+  //   `sortBy=publishedAt`
+
+  const { success, response } = await getMockArticles()
 
   if (!success) {
-    throw new Error(response.statusText, { cause: response })
+    throw new Error(response.status, { cause: response })
   }
 
-  return json({ response, amount })
-}
+  const articles = response.articles.filter(
+    (article) =>
+      article.content !== '[REMOVED]' &&
+      article.title &&
+      franc(article.title) === 'eng' &&
+      franc(article.content) === 'eng',
+  )
+  console.log(response.articles)
 
-export function ErrorBoundary() {
-  const error = useRouteError()
-
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div>
-        <h1>Oops</h1>
-        <p>Status: {error.status}</p>
-        <p>{error.data.message}</p>
-      </div>
-    )
-  }
-
-  return <NoArticle />
+  return json(
+    {
+      articles,
+      amount,
+    },
+    { headers: { 'Cache-Control': 'public, max-age=300' } },
+  )
 }
 
 export default function SearchResults() {
-  const { response: articles, amount } = useLoaderData<typeof loader>()
+  const { articles, amount } = useLoaderData<typeof loader>()
   const resultsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // to handle the first search since default amount is 6
     if (amount === '6') {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [articles, amount])
 
-  return (
-    <Suspense fallback={<Loading />}>
+  return articles.length > 0 ? (
+    <>
       <ArticleGalleryLayout
         title='Search results'
         topRef={resultsRef}
         amount={amount}
       >
-        {articles.map((article) => (
-          <ResultArticleCard data={article} key={article._id} />
+        {articles.slice(0, Number(amount)).map((article) => (
+          <ResultArticleCard data={article} key={Math.random()} />
         ))}
       </ArticleGalleryLayout>
-    </Suspense>
+    </>
+  ) : (
+    <NoArticle />
   )
 }
 

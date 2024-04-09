@@ -1,21 +1,17 @@
 import { LoaderFunctionArgs, json, redirect } from '@vercel/remix'
-import { Outlet, useLoaderData } from '@remix-run/react'
+import { Outlet, useLoaderData, useNavigation } from '@remix-run/react'
 import HomeAuthor from './home-author'
 import HomeHeader from './home-header'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
 import { destroySession, getSession } from '~/session.server'
-import { getCurrentUser } from '~/services/users.server'
+import { authenticateUser } from '~/services/auth.server'
+import { Loading } from '../home.search.$searchTerm'
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getSession(request.headers.get('Cookie'))
-  console.log('===================================')
-  console.log('@home session data: ', session.data)
-
   const token = session.get('token')
 
   if (!token) {
-    console.log('@home: no token')
-
     return json(
       {
         searchTerm: params.searchTerm || '',
@@ -26,19 +22,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     )
   }
 
-  console.log('@home: token=', token)
+  const { success: authenticated, response } = await authenticateUser(token)
 
-  console.log('@home: attempting to get user...')
-  const { success, response } = await getCurrentUser(token)
-
-  if (!success) {
-    console.log('      @home: get failed')
+  if (!authenticated) {
     return redirect('/', {
       headers: { 'Set-Cookie': await destroySession(session) },
     })
   }
-
-  console.log('      @home: get success')
 
   return json(
     {
@@ -51,13 +41,18 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 }
 
 export default function Home() {
-  console.log('home rendered')
   const { signedIn, username } = useLoaderData<typeof loader>()
+  const navigation = useNavigation()
   return (
     <>
       <NavBarMain color='white' signedIn={signedIn} username={username} />
       <HomeHeader />
-      <Outlet />
+      {navigation.state === 'loading' &&
+      !navigation.location?.state?.showMore ? (
+        <Loading />
+      ) : (
+        <Outlet />
+      )}
       <HomeAuthor />
     </>
   )

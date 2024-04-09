@@ -107,9 +107,10 @@ export function AuthPopupForm({
 
   const thereAreErrors = Object.keys(formErrors).length > 0
 
-  // close popup on redirect
+  // close popup and reset errors on redirect
   useEffect(() => {
     closePopups()
+    setFormErrors({})
   }, [locationPathname, closePopups])
 
   return (
@@ -154,12 +155,15 @@ export function AuthPopupForm({
               'mb-[20px] w-full rounded-2xl p-2 px-4 text-center md:text-sm',
               {
                 ' bg-gray-100 text-gray-400 ': !thereAreErrors,
-                'border-[0.2px] border-gray-100 bg-white text-red-400 shadow-sm':
+                'border-[1px] border-red-400 bg-white text-red-400 ':
                   thereAreErrors,
               },
             )}
           >
-            {Object.values(formErrors)[0] || 'looks good!'}
+            {Object.values(formErrors)[0] ||
+              (Object.values(values).length === 0
+                ? 'Please fill in required fields'
+                : 'looks good!')}
           </em>
           <button
             className={clsx(

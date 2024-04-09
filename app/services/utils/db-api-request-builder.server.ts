@@ -12,7 +12,7 @@ type RequestHelperResult<R> =
       token: null
     }
 
-export default function requestBuilder<
+export const requestBuilder = <
   R,
   T extends Record<string, unknown> = Record<string, never>,
 >(
@@ -21,7 +21,7 @@ export default function requestBuilder<
     method = 'GET',
     headers = { 'Content-Type': 'application/json' },
   }: { method?: HttpMethod; headers?: Record<string, string> } = {},
-) {
+) => {
   return async (body?: T): Promise<RequestHelperResult<R>> => {
     try {
       const response = await fetch(`${env.API_URL + endpoint}`, {
@@ -41,17 +41,16 @@ export default function requestBuilder<
 
       if (!response.ok) {
         const validation = ApiErrorSchema.safeParse(parsedResponse)
-        if (validation.success) {
-          return {
-            success: false,
-            response: parsedResponse,
-            token: null,
-          }
+        if (!validation.success) {
+          console.error('Response not of expected shape', {
+            cause: { response, validation: validation.error },
+          })
         }
-        console.error('Response not of expected shape')
-        throw new Error('Requst failed, error response not of expected shape', {
-          cause: validation.error,
-        })
+        return {
+          success: false,
+          response: parsedResponse,
+          token: null,
+        }
       }
 
       return { success: true, response: parsedResponse, token }

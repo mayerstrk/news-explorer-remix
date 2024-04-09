@@ -8,4 +8,10 @@
     --navbar-h-md: 66px;
     --navbar-h-xl: 80px;
   }
+  .font-outline-2 {
+    -webkit-text-stroke: 0.2px black;
+  }
+  .font-outline-4 {
+    -webkit-text-stroke: 4px black;
+  }
 }

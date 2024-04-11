@@ -54,8 +54,10 @@ export const loader = async ({
     return redirect('/')
   }
 
+  console.log('response.data: ', response.data)
+
   return {
-    articles: response,
+    articles: response.data,
     amount,
     username: validationResponse.data.name,
     signedIn: true,
@@ -79,6 +81,8 @@ function Gallery({
   amount,
 }: Pick<LoaderData, 'articles' | 'amount'>) {
   const resultsRef = useRef<HTMLDivElement>(null)
+
+  console.log('gallery  rendered')
 
   return (
     <Suspense fallback={<Loading />}>

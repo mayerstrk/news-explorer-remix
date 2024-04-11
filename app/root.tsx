@@ -7,11 +7,9 @@ import {
   ScrollRestoration,
   json,
   useLoaderData,
-  useRouteError,
 } from '@remix-run/react'
 import styles from './tailwind.css?url'
-import NavBarMain from '~/root-layout-components/nav-bar-main'
-import { useEffect } from 'react'
+
 import { NavMobilePopup } from './root-layout-components/nav-mobile-popup'
 import Footer from './root-layout-components/footer'
 import SignInPopup from './root-layout-components/sign-in-popup'
@@ -39,7 +37,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function App() {
   const { signedIn, userData } = useLoaderData<typeof loader>()
-
+  console.log('root rendered')
   const username = userData?.username
 
   return (

@@ -4,7 +4,7 @@ import { ApiErrorSchema } from '~/utils/errors'
 import { extractTokenFromSetCookieHeader } from '~/utils/helpers'
 import { ApiEndpoint, HttpMethod } from '~/utils/string-unions'
 
-type RequestHelperResult<R> =
+export type RequestHelperResult<R> =
   | { success: true; response: R; token: string | null | undefined }
   | {
       success: false

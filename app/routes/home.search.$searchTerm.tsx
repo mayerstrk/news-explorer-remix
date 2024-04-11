@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, json, redirect } from '@vercel/remix'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData, useNavigation } from '@remix-run/react'
 import clsx from 'clsx'
 import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
@@ -63,7 +63,6 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
       franc(article.title) === 'eng' &&
       franc(article.content) === 'eng',
   )
-  console.log(response.articles)
 
   return json(
     {
@@ -77,13 +76,15 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 export default function SearchResults() {
   const { articles, amount } = useLoaderData<typeof loader>()
   const resultsRef = useRef<HTMLDivElement>(null)
+  const navigation = useNavigation()
 
   useEffect(() => {
     // to handle the first search since default amount is 6
-    if (amount === '6') {
+    const fromSearch = navigation.location?.state?.fromSearch
+    if (fromSearch) {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [articles, amount])
+  }, [navigation])
 
   return articles.length > 0 ? (
     <>
@@ -105,7 +106,7 @@ export default function SearchResults() {
 export function ResultArticleCard({ data }: { data: Article }) {
   return (
     <ArticleCard data={data}>
-      <ResultArticleControls />
+      <ResultArticleControls article={data} />
     </ArticleCard>
   )
 }

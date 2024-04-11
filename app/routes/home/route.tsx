@@ -43,12 +43,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export default function Home() {
   const { signedIn, username } = useLoaderData<typeof loader>()
   const navigation = useNavigation()
+
   return (
     <>
       <NavBarMain color='white' signedIn={signedIn} username={username} />
       <HomeHeader />
       {navigation.state === 'loading' &&
-      !navigation.location?.state?.showMore ? (
+      navigation.location?.state?.fromSearch ? (
         <Loading />
       ) : (
         <Outlet />

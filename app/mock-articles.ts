@@ -1,5 +1,5 @@
 export async function getMockArticles() {
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  // await new Promise((resolve) => setTimeout(resolve, 1000))
 
   return { success: true, response: { articles: data, status: '200' } }
 }

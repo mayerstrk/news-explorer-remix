@@ -16,6 +16,7 @@
     "@remix-run/serve": "^2.8.0",
     "@vercel/remix": "^2.8.1-patch.2",
     "clsx": "latest",
+    "compromise": "^14.13.0",
     "franc": "^6.2.0",
     "isbot": "^4.1.0",
     "postcss": "^8.4.38",

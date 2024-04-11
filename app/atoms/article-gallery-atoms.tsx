@@ -1,21 +1,27 @@
-import { Link, useLocation, useNavigation } from '@remix-run/react'
+import {
+  Form,
+  Link,
+  useFetcher,
+  useNavigation,
+  useSubmit,
+} from '@remix-run/react'
 import clsx from 'clsx'
-import { ReactNode, RefObject, useCallback, useEffect, useState } from 'react'
+import { ReactNode, RefObject, useCallback, useState } from 'react'
 import { Loading } from '~/routes/home.search.$searchTerm'
 import { DBArticle } from '~/services/articles.server'
 
 export type Article = {
   source: {
     id: string | null
-    name: string
+    name: string | null
   }
   author: string | null
   title: string | null
   description: string | null
-  url: string
+  url: string | null
   urlToImage: string | null
-  publishedAt: string
-  content: string
+  publishedAt: string | null
+  content: string | null
 }
 
 export function ArticleGalleryLayout({
@@ -29,22 +35,14 @@ export function ArticleGalleryLayout({
   amount: string
   topRef: RefObject<HTMLElement>
 }) {
-  const location = useLocation()
   const navigation = useNavigation()
 
   const scrollToTop = useCallback(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [topRef])
 
-  useEffect(() => {
-    console.log(navigation)
-  }, [navigation])
-
-  useEffect(() => {
-    console.log(location)
-  }, [location])
-
-  return navigation.state === 'loading' && !navigation.location.state ? (
+  return navigation.state === 'loading' &&
+    navigation.location?.state?.fromSearch ? (
     <Loading />
   ) : (
     <>
@@ -173,8 +171,8 @@ export function ArticleCard({
   const title = data.title
   const content = isArticle ? data.content : data.text
   const date = isArticle
-    ? data.publishedAt.split('T')[0]
-    : data.date.toISOString().split('T')[0]
+    ? data.publishedAt?.split('T')[0]
+    : data.date.split('T')[0]
   const sourceName = isArticle ? data.source.name : data.source
 
   return (
@@ -205,19 +203,21 @@ export function ArticleCard({
           {content}
         </p>
         <p className='font-robotoSlab text-[16px] font-bold leading-[20px] text-[#B6BCBF] xl:px-[24px]'>
-          {sourceName.toUpperCase()}
+          {sourceName?.toUpperCase() || ''}
         </p>
       </div>
     </li>
   )
 }
 
-export function ResultArticleControls() {
+export function ResultArticleControls({ article }: { article: Article }) {
   const [isSaved, setIsSaved] = useState(false)
+  const submit = useSubmit()
   return (
     <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
       <ArticleControlLayout>
         <button
+          type='submit'
           className={clsx(
             'h-[26px] w-[26px]', // dimensions
             'bg-contain', // background
@@ -228,7 +228,14 @@ export function ResultArticleControls() {
               'bg-[url("/images/bookmark-active.svg")]': isSaved, // background (conditional)
             },
           )}
-          onClick={() => setIsSaved(!isSaved)}
+          onClick={() => {
+            submit(article, {
+              method: 'post',
+              navigate: false,
+              action: '/save-article',
+              encType: 'application/json',
+            })
+          }}
         ></button>
       </ArticleControlLayout>
     </div>

@@ -77,7 +77,9 @@ export function HeaderSearch() {
           e.preventDefault()
           const searchField = document.getElementById('search-term')
           if (searchField instanceof HTMLInputElement) {
-            navigate('/home/search/' + searchField.value)
+            navigate('/home/search/' + searchField.value, {
+              state: { fromSearch: true },
+            })
           } else {
             console.error('failed to select search field')
           }

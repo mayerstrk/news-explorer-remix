@@ -1,28 +1,9 @@
-import {
-  Form,
-  Link,
-  useFetcher,
-  useNavigation,
-  useSubmit,
-} from '@remix-run/react'
+import { Link, useNavigation } from '@remix-run/react'
 import clsx from 'clsx'
 import { ReactNode, RefObject, useCallback, useState } from 'react'
 import { Loading } from '~/routes/home.search.$searchTerm'
-import { DBArticle } from '~/services/articles.server'
-
-export type Article = {
-  source: {
-    id: string | null
-    name: string | null
-  }
-  author: string | null
-  title: string | null
-  description: string | null
-  url: string | null
-  urlToImage: string | null
-  publishedAt: string | null
-  content: string | null
-}
+import { DBArticle } from '~/services.server/db-api/articles'
+import { NewsApiArticle } from '~/services.server/news-api/news-api'
 
 export function ArticleGalleryLayout({
   children,
@@ -160,8 +141,8 @@ export function ArticleCard({
   children,
   data,
 }: {
-  children: React.ReactNode
-  data: Article | DBArticle
+  children: ReactNode
+  data: NewsApiArticle | DBArticle
 }) {
   const [noImage, setNoImage] = useState(false)
 
@@ -210,83 +191,7 @@ export function ArticleCard({
   )
 }
 
-export function ResultArticleControls({ article }: { article: Article }) {
-  const [isSaved, setIsSaved] = useState(false)
-  const submit = useSubmit()
-  return (
-    <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
-      <ArticleControlLayout>
-        <button
-          type='submit'
-          className={clsx(
-            'h-[26px] w-[26px]', // dimensions
-            'bg-contain', // background
-            'hover:bg-[url("/images/bookmark--hover.svg")]', // hover
-
-            {
-              'bg-[url("/images/bookmark.svg")]': !isSaved, // background (conditional)
-              'bg-[url("/images/bookmark-active.svg")]': isSaved, // background (conditional)
-            },
-          )}
-          onClick={() => {
-            submit(article, {
-              method: 'post',
-              navigate: false,
-              action: '/save-article',
-              encType: 'application/json',
-            })
-          }}
-        ></button>
-      </ArticleControlLayout>
-    </div>
-  )
-}
-
-export function SavedArticleControls({ keyword }: { keyword: string }) {
-  const [isSaved, setIsSaved] = useState(true)
-  const [isHovered, setIsHovered] = useState(false)
-
-  return (
-    <div
-      className={clsx(
-        't-0 absolute inset-x-0', // positioning
-        'flex w-full justify-between', // display
-        'px-[16px] pt-[16px] md:p-[8px] xl:p-[24px]', // margin and padding
-      )}
-    >
-      <ArticleControlLayout
-        xpadding='22px' // margin and padding (?)
-      >
-        {keyword}
-      </ArticleControlLayout>
-      <div
-        className={clsx(
-          'relative flex gap-[5px]', // display
-        )}
-      >
-        {isHovered && (
-          <div className='w-[159px] md:absolute md:-left-[164px] md:top-0'>
-            <ArticleControlLayout>Remove from saved</ArticleControlLayout>
-          </div>
-        )}
-        <ArticleControlLayout>
-          <button
-            className={clsx(
-              'h-[24px] w-[24px]', // dimensions
-              'bg-[url("/images/trash.svg")]', // background
-              'hover:bg-[url("/images/trash--hover.svg")]', // hover
-            )}
-            onClick={() => setIsSaved(!isSaved)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          ></button>
-        </ArticleControlLayout>
-      </div>
-    </div>
-  )
-}
-
-function ArticleControlLayout({
+export function ArticleControlLayout({
   children,
   xpadding = '8px',
 }: {

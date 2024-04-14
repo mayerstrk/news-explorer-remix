@@ -1,76 +1,72 @@
-import { LoaderFunctionArgs } from '@vercel/remix'
+import { LoaderFunctionArgs, TypedResponse } from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
-import { redirect, useLoaderData } from '@remix-run/react'
-import { Suspense, useRef } from 'react'
+import { json, redirect, useLoaderData } from '@remix-run/react'
+import { Suspense, useRef, useState } from 'react'
 import {
   ArticleCard,
+  ArticleControlLayout,
   ArticleGalleryLayout,
-  SavedArticleControls,
 } from '~/atoms/article-gallery-atoms'
 import clsx from 'clsx'
-import { destroySession, getSession } from '~/session.server'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
-import { DBArticle, getSavedArticles } from '~/services/articles.server'
-import { authenticateUser } from '~/services/auth.server'
+import { DBArticle, getSavedArticles } from '~/services.server/db-api/articles'
+import { serverAuthProtectedRoute } from '~/services.server/db-api/auth'
+import invariant from 'tiny-invariant'
+import { Route } from '~/utils/enums'
+import { ExtractLoaderData } from '~/types/utility-types'
 
-type LoaderData = {
-  signedIn: boolean
-  amount: string
-  username: string
-  articles: DBArticle[]
-}
+type LoaderReturnType = Promise<
+  TypedResponse<{
+    signedIn: boolean
+    amount: string
+    username: string
+    articles: DBArticle[]
+  }>
+>
+type LoaderData = ExtractLoaderData<LoaderReturnType>
 
 export const loader = async ({
   request,
-}: LoaderFunctionArgs): Promise<LoaderData | Response> => {
-  // check if user is authenticated locally
-  const session = await getSession(request.headers.get('Cookie'))
-
-  const token = session.get('token')
-
-  if (!token) {
-    return redirect('/', {
-      headers: { 'Set-Cookie': await destroySession(session) },
-    })
-  }
-
-  const { success: validationSuccess, response: validationResponse } =
-    await authenticateUser(token)
-
-  if (!validationSuccess) {
-    return redirect('/', {
-      headers: { 'Set-Cookie': await destroySession(session) },
-    })
-  }
+}: LoaderFunctionArgs): LoaderReturnType => {
+  const {
+    session,
+    response: {
+      data: { name: username },
+    },
+  } = await serverAuthProtectedRoute(request)
 
   // get articles
   const url = new URL(request.url)
   const amount = url.searchParams.get('amount') || '12'
 
-  const { success, response } = await getSavedArticles(token)
+  const { success, response } = await getSavedArticles(session)
 
   if (!success) {
     console.error(response.message, { cause: response })
-    return redirect('/')
+    return redirect(Route.home)
   }
 
-  console.log('response.data: ', response.data)
-
-  return {
-    articles: response.data,
-    amount,
-    username: validationResponse.data.name,
-    signedIn: true,
-  }
+  return json(
+    {
+      articles: response.data,
+      amount,
+      username,
+      signedIn: true,
+    },
+    { status: 200 },
+  )
 }
 
 export default function Saved() {
   const { signedIn, username, articles, amount } =
     useLoaderData<typeof loader>()
+  console.log(articles)
+  const realAmount = articles.length
+
   return (
     <>
       <NavBarMain color='black' signedIn={signedIn} username={username} />
-      <SavedArticlesHeader username={username} />
+      <SavedArticlesHeader amount={realAmount} username={username} />
       <Gallery articles={articles} amount={amount} />
     </>
   )
@@ -79,30 +75,66 @@ export default function Saved() {
 function Gallery({
   articles,
   amount,
-}: Pick<LoaderData, 'articles' | 'amount'>) {
+}: {
+  articles: LoaderData['articles']
+  amount: LoaderData['amount']
+}) {
   const resultsRef = useRef<HTMLDivElement>(null)
 
-  console.log('gallery  rendered')
-
   return (
-    <Suspense fallback={<Loading />}>
+    <div>
       {articles.length > 0 ? (
         <ArticleGalleryLayout title='' topRef={resultsRef} amount={amount}>
-          {articles.map((article) => (
+          {articles.slice(0, Number(amount)).map((article) => (
             <SavedArticleCard data={article} key={article.article_id} />
           ))}
         </ArticleGalleryLayout>
       ) : (
         <NoArticle />
       )}
-    </Suspense>
+    </div>
   )
 }
 
-function SavedArticleCard({ data }: { data: DBArticle }) {
+function SavedArticleCard({ data }: { data: LoaderData['articles'][number] }) {
+  const [isSaved, setIsSaved] = useState(true)
+  const [isHovered, setIsHovered] = useState(false)
   return (
     <ArticleCard data={data}>
-      <SavedArticleControls keyword={data.keyword} />
+      <div
+        className={clsx(
+          't-0 absolute inset-x-0', // positioning
+          'flex w-full justify-between', // display
+          'px-[16px] pt-[16px] md:p-[8px] xl:p-[24px]', // margin and padding
+        )}
+      >
+        <ArticleControlLayout xpadding='22px'>
+          {data.keyword}
+        </ArticleControlLayout>
+        <div
+          className={clsx(
+            'relative flex gap-[5px]', // display
+          )}
+        >
+          {isHovered && (
+            <div className='w-[159px] md:absolute md:-left-[164px] md:top-0'>
+              <ArticleControlLayout>Remove from saved</ArticleControlLayout>
+            </div>
+          )}
+          <ArticleControlLayout>
+            <button
+              className={clsx(
+                'h-[24px] w-[24px]', // dimensions
+                'bg-[url("/images/trash.svg")]', // background
+                'hover:bg-[url("/images/trash--hover.svg")]', // hover
+              )}
+              onClick={() => setIsSaved(!isSaved)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            ></button>
+          </ArticleControlLayout>
+        </div>
+      </div>
     </ArticleCard>
   )
 }

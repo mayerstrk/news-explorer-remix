@@ -1,10 +1,11 @@
 import { PopupLayout } from '~/atoms/popup-atoms'
 import { AuthPopupForm, AuthPopupSettings } from '~/atoms/popup-form-atoms'
 import { signupValidationSchema } from '~/hooks/use-form'
+import { PopupName, Route } from '~/utils/enums'
 
 export default function SignUpPopup() {
   const settings: AuthPopupSettings = {
-    name: 'sign-up',
+    name: PopupName.signup,
     title: 'Sign up',
     inputs: [
       {
@@ -32,15 +33,15 @@ export default function SignUpPopup() {
     controls: {
       mainText: 'Sign up',
       orText: 'Sign in',
-      redirectFrom: 'sign-up',
-      redirectTo: 'sign-in',
+      redirectFrom: PopupName.signup,
+      redirectTo: PopupName.signin,
     },
   }
 
   return (
     <PopupLayout name={settings.name}>
       <AuthPopupForm
-        action='/sign-up'
+        action={Route.signup}
         settings={settings}
         validationSchema={signupValidationSchema}
       />

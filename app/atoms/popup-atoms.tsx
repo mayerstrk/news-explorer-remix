@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { usePopupToggle, usePopupVisibility } from '~/hooks/zustand/use-popup'
-import { PopupName } from '~/utils/string-unions'
+import { PopupName } from '~/utils/enums'
 
 export function PopupLayout({
   children,

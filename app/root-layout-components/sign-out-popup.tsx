@@ -4,10 +4,11 @@ import { useEffect } from 'react'
 import { PopupLayout } from '~/atoms/popup-atoms'
 import { useClosePopups, usePopupToggle } from '~/hooks/zustand/use-popup'
 import { SignoutAction } from '~/routes/sign-out'
+import { PopupName } from '~/utils/enums'
 
 export default function SignOutPopup() {
   const fetcher = useFetcher<SignoutAction>()
-  const toggle = usePopupToggle('sign-out')
+  const toggle = usePopupToggle(PopupName.confirm)
   const closePopups = useClosePopups()
 
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function SignOutPopup() {
   }, [fetcher.state, closePopups])
 
   return (
-    <PopupLayout name='sign-out'>
+    <PopupLayout name={PopupName.confirm}>
       <div
         className={clsx(
           'fixed bottom-0 z-50 md:bottom-auto', // positioning

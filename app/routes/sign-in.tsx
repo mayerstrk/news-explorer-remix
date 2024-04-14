@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, json, redirect } from '@vercel/remix'
 import invariant from 'tiny-invariant'
-import { signIn } from '~/services/auth.server'
+import { signinMutation } from '~/services.server/db-api/auth'
 import { getSession, commitSession } from '~/session.server'
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -11,7 +11,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   invariant(email, 'email is required')
   invariant(password, 'password is required')
   console.log('@sign-in: attempting sign in...')
-  const { success, response, token } = await signIn({
+  const { success, response, token } = await signinMutation({
     email,
     password,
   })

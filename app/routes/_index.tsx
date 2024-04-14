@@ -1,3 +1,4 @@
-import { appRedirect } from '~/utils/remix'
+import { redirect } from '@vercel/remix'
+import { Route } from '~/utils/enums'
 
-export const loader = () => appRedirect('/home')
+export const loader = () => redirect(Route.home)

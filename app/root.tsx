@@ -14,7 +14,7 @@ import { NavMobilePopup } from './root-layout-components/nav-mobile-popup'
 import Footer from './root-layout-components/footer'
 import SignInPopup from './root-layout-components/sign-in-popup'
 import SignUpPopup from './root-layout-components/sign-up-popup'
-import { commitSession, getSession } from './session.server'
+import { destroySession, getSession } from './session.server'
 import SignOutPopup from './root-layout-components/sign-out-popup'
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
@@ -31,7 +31,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return json(
     { signedIn: false, userData: null },
-    { headers: { 'Set-Cookie': await commitSession(session) } },
+    { headers: { 'Set-Cookie': await destroySession(session) } },
   )
 }
 

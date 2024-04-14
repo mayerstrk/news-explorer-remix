@@ -1,46 +1,41 @@
 import { env } from 'environment-config'
 import { z } from 'zod'
-import { ApiErrorSchema } from '~/utils/errors'
-import { extractTokenFromSetCookieHeader } from '~/utils/helpers'
-import { ApiEndpoint, HttpMethod } from '~/utils/string-unions'
+import { HttpMethod } from '~/utils/string-unions'
+import { NewsApiErrorSchema } from '../utils/db-api-zod-error-schemas'
 
-export type RequestHelperResult<R> =
-  | { success: true; response: R; token: string | null | undefined }
+type RequestHelperResult<R> =
+  | { success: true; response: R }
   | {
       success: false
-      response: z.infer<typeof ApiErrorSchema>
-      token: null
+      response: z.infer<typeof NewsApiErrorSchema>
     }
 
-export const requestBuilder = <
+export default function requestBuilder<
   R,
   T extends Record<string, unknown> = Record<string, never>,
 >(
-  endpoint: ApiEndpoint,
+  endpointWithParams: string,
   {
     method = 'GET',
-    headers = { 'Content-Type': 'application/json' },
+    headers = {
+      'Content-Type': 'application/json',
+      'X-Api-Key': env.NEWS_API_KEY,
+    },
   }: { method?: HttpMethod; headers?: Record<string, string> } = {},
-) => {
+) {
   return async (body?: T): Promise<RequestHelperResult<R>> => {
     try {
-      const response = await fetch(`${env.API_URL + endpoint}`, {
+      const response = await fetch(`${env.NEWS_API_URL + endpointWithParams}`, {
         method,
         headers,
         body: method != 'GET' && body ? JSON.stringify(body) : undefined,
         credentials: 'include',
       })
 
-      const setCookieHeader = response.headers.get('Set-Cookie')
-      let token
-      if (setCookieHeader) {
-        token = extractTokenFromSetCookieHeader(setCookieHeader)
-      }
-
       const parsedResponse = await response.json()
 
       if (!response.ok) {
-        const validation = ApiErrorSchema.safeParse(parsedResponse)
+        const validation = NewsApiErrorSchema.safeParse(parsedResponse)
         if (!validation.success) {
           console.error('Response not of expected shape', {
             cause: { response, validation: validation.error },
@@ -49,16 +44,18 @@ export const requestBuilder = <
         return {
           success: false,
           response: parsedResponse,
-          token: null,
         }
       }
 
-      return { success: true, response: parsedResponse, token }
+      return { success: true, response: parsedResponse }
     } catch (caught) {
       if (caught instanceof z.ZodError) {
-        const validationError = new Error('Response not of expected shape', {
-          cause: caught,
-        })
+        const validationError = new Error(
+          'Request failed and response not of expected shape',
+          {
+            cause: caught,
+          },
+        )
         console.error(validationError.message, validationError.cause)
       }
 

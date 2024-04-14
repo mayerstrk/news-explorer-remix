@@ -1,6 +1,6 @@
 import { useNavigate } from '@remix-run/react'
 import { To } from 'react-router'
-import { Route } from '~/utils/string-unions'
+import { Route } from '~/utils/enums'
 
 export const useAppNavigate = () => {
   const navigate = useNavigate()

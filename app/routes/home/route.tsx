@@ -1,17 +1,34 @@
-import { LoaderFunctionArgs, json, redirect } from '@vercel/remix'
+import {
+  LoaderFunctionArgs,
+  TypedResponse,
+  json,
+  redirect,
+} from '@vercel/remix'
 import { Outlet, useLoaderData, useNavigation } from '@remix-run/react'
 import HomeAuthor from './home-author'
 import HomeHeader from './home-header'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
-import { destroySession, getSession } from '~/session.server'
-import { authenticateUser } from '~/services/auth.server'
+import { destroySession } from '~/session.server'
 import { Loading } from '../home.search.$searchTerm'
+import { AuthState, serverAuthPublicRoute } from '~/services.server/db-api/auth'
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const session = await getSession(request.headers.get('Cookie'))
-  const token = session.get('token')
+type LoaderReturnType = Promise<
+  TypedResponse<
+    | {
+        searchTerm: string
+        signedIn: true
+        username: string
+      }
+    | { searchTerm: string; signedIn: false; username: null }
+  >
+>
+export const loader = async ({
+  request,
+  params,
+}: LoaderFunctionArgs): LoaderReturnType => {
+  const { session, authState, response } = await serverAuthPublicRoute(request)
 
-  if (!token) {
+  if (authState === AuthState.notSignedIn) {
     return json(
       {
         searchTerm: params.searchTerm || '',
@@ -22,9 +39,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     )
   }
 
-  const { success: authenticated, response } = await authenticateUser(token)
-
-  if (!authenticated) {
+  if (authState === AuthState.tokenValidationFailed) {
     return redirect('/', {
       headers: { 'Set-Cookie': await destroySession(session) },
     })

@@ -6,7 +6,7 @@ import NavBarLayout, {
   NavRouteItems,
 } from '../atoms/nav-atoms'
 import { ReactNode } from 'react'
-import { Size } from '~/utils/enums'
+import { PopupName, Size } from '~/utils/enums'
 import { PopupLayout } from '../atoms/popup-atoms'
 
 export function NavMobilePopup({
@@ -37,7 +37,7 @@ export function NavMobilePopup({
 
 export function NavMobilePopupLayout({ children }: { children: ReactNode }) {
   return (
-    <PopupLayout name='nav-menu'>
+    <PopupLayout name={PopupName.navMenu}>
       <div className='z-50 w-full bg-[#1A1B22] pt-[var(--navbar-h)] text-white '>
         {children}
       </div>
@@ -46,7 +46,7 @@ export function NavMobilePopupLayout({ children }: { children: ReactNode }) {
 }
 
 export function NavBarPopupCloseButton() {
-  const toggle = usePopupToggle('nav-menu')
+  const toggle = usePopupToggle(PopupName.navMenu)
 
   return (
     <button

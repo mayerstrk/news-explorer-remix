@@ -2,7 +2,7 @@ import { Link, useLocation } from '@remix-run/react'
 import clsx from 'clsx'
 import { ReactNode } from 'react'
 import { usePopupToggle } from '~/hooks/zustand/use-popup'
-import { Size } from '~/utils/enums'
+import { PopupName, Size } from '~/utils/enums'
 import { sameFirstSegment } from '~/utils/helpers'
 
 export type NavBarColorScheme = 'white' | 'black'
@@ -56,7 +56,7 @@ export function NavBarControls({ children }: { children: ReactNode }) {
 }
 
 export function NavMenuButton({ color }: { color: NavBarColorScheme }) {
-  const toggle = usePopupToggle('nav-menu')
+  const toggle = usePopupToggle(PopupName.navMenu)
 
   return (
     <button
@@ -121,7 +121,7 @@ export function NavItem({
   color: string
 }) {
   const location = useLocation()
-  const toggle = usePopupToggle('nav-menu')
+  const toggle = usePopupToggle(PopupName.navMenu)
 
   return (
     <div
@@ -143,7 +143,7 @@ export function NavItem({
       )}
     >
       <li className='flex h-full items-center justify-start text-start'>
-        <Link onClick={toggle} to={to} prefetch='render'>
+        <Link onClick={toggle} to={to} prefetch='intent'>
           {text}
         </Link>
       </li>
@@ -162,12 +162,12 @@ export function AuthButton({
   color: NavBarColorScheme
   username: string | null
 }) {
-  const toggleSignInPopup = usePopupToggle('sign-in')
-  const toggleSignOutPopup = usePopupToggle('sign-out')
+  const toggleSignInPopup = usePopupToggle(PopupName.signin)
+  const toggleConfirmPopup = usePopupToggle(PopupName.confirm)
 
   const handleClick = async () => {
     if (signedIn) {
-      toggleSignOutPopup()
+      toggleConfirmPopup()
     } else {
       toggleSignInPopup()
     }

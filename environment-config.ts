@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const enum EnvironmentVariables {
-  DB_API_URL = 'API_URL',
+  DB_API_URL = 'DB_API_URL',
   NEWS_API_URL = 'NEWS_API_URL',
   NEWS_API_KEY = 'NEWS_API_KEY',
   COOKIE_SECRET = 'COOKIE_SECRET',
@@ -12,7 +12,7 @@ const enum EnvironmentVariables {
 
 const environmentVariables = {
   [EnvironmentVariables.DB_API_URL]:
-    process.env.API_URL || 'http://127.0.0.1:3000',
+    process.env.DB_API_URL || 'http://127.0.0.1:3000',
   [EnvironmentVariables.NEWS_API_URL]:
     process.env.NEWS_API_URL || 'https://newsapi.org/v2',
   [EnvironmentVariables.NEWS_API_KEY]:

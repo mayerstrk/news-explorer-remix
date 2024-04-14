@@ -1,34 +1,62 @@
-import { LoaderFunctionArgs, json, redirect } from '@vercel/remix'
-import { useLoaderData, useNavigation } from '@remix-run/react'
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  TypedResponse,
+  json,
+  redirect,
+} from '@vercel/remix'
+import { Form, useLoaderData, useNavigation } from '@remix-run/react'
 import clsx from 'clsx'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import {
-  Article,
   ArticleCard,
+  ArticleControlLayout,
   ArticleGalleryLayout,
-  ResultArticleControls,
 } from '~/atoms/article-gallery-atoms'
 
 import { destroySession, getSession } from '~/session.server'
-import { authenticateUser } from '~/services/auth.server'
 import { getMockArticles } from '~/mock-articles'
 import { franc } from 'franc'
+import {
+  DBArticle,
+  getSavedArticles,
+  saveArticle,
+} from '~/services.server/db-api/articles'
+import { NewsApiArticle } from '~/services.server/news-api/news-api'
+import { AuthState, serverAuthPublicRoute } from '~/services.server/db-api/auth'
+import { Route } from '~/utils/enums'
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  // Validation
-  const session = await getSession(request.headers.get('Cookie'))
+type LoaderReturnType = Promise<
+  | TypedResponse<{
+      signedIn: true
+      articles: NewsApiArticle[]
+      savedArticles: DBArticle[]
+      amount: string
+    }>
+  | TypedResponse<{
+      signedIn: false
+      articles: NewsApiArticle[]
+      savedArticles: null
+      amount: string
+    }>
+  | TypedResponse<never>
+>
 
-  const token = session.get('token')
+type ActionReturnType = Promise<
+  TypedResponse<{ success: boolean; message: string }>
+>
 
-  if (token) {
-    const { success: validationSuccess } = await authenticateUser(token)
+export const loader = async ({
+  params,
+  request,
+}: LoaderFunctionArgs): LoaderReturnType => {
+  const { session, authState } = await serverAuthPublicRoute(request)
 
-    if (!validationSuccess) {
-      return redirect('/home', {
-        headers: { 'Set-Cookie': await destroySession(session) },
-      })
-    }
+  if (authState === AuthState.tokenValidationFailed) {
+    return redirect(Route.home, {
+      headers: { 'Set-Cookie': await destroySession(session) },
+    })
   }
 
   // Route specific
@@ -64,38 +92,98 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
       franc(article.content) === 'eng',
   )
 
-  return json(
-    {
+  if (authState === AuthState.signedIn) {
+    const {
+      success: getSavedArticlesSuccess,
+      response: getSavedArticlesResponse,
+    } = await getSavedArticles(session)
+
+    if (!getSavedArticlesSuccess) {
+      throw new Error(getSavedArticlesResponse.message, {
+        cause: getSavedArticlesResponse,
+      })
+    }
+    return json({
+      signedIn: true,
       articles,
+      savedArticles: getSavedArticlesResponse.data,
       amount,
-    },
-    { headers: { 'Cache-Control': 'public, max-age=300' } },
+    })
+  }
+  return json({
+    signedIn: false,
+    articles,
+    savedArticles: null,
+    amount,
+  })
+}
+
+export const action = async ({
+  request,
+}: ActionFunctionArgs): ActionReturnType => {
+  const { session, authState } = await serverAuthPublicRoute(request)
+
+  if (authState === AuthState.tokenValidationFailed) {
+    return redirect(Route.home, {
+      headers: { 'Set-Cookie': await destroySession(session) },
+    })
+  }
+
+  const formData = await request.formData()
+  const serializedArticle = formData.get('article')
+  invariant(
+    serializedArticle && typeof serializedArticle === 'string',
+    'Missing or invalid article',
   )
+  const article = JSON.parse(serializedArticle)
+
+  const { success } = await saveArticle(article, session)
+
+  if (!success) {
+    console.error('failed to save article')
+    return json({ success: false, message: 'failed' }, { status: 500 })
+  }
+
+  console.log('save article success', article)
+
+  return json({ success: true, message: 'success' }, { status: 200 })
 }
 
 export default function SearchResults() {
-  const { articles, amount } = useLoaderData<typeof loader>()
+  const { signedIn, articles, savedArticles, amount } =
+    useLoaderData<typeof loader>()
   const resultsRef = useRef<HTMLDivElement>(null)
   const navigation = useNavigation()
 
   useEffect(() => {
-    // to handle the first search since default amount is 6
     const fromSearch = navigation.location?.state?.fromSearch
     if (fromSearch) {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [navigation])
 
-  return articles.length > 0 ? (
+  return articles ? (
     <>
       <ArticleGalleryLayout
         title='Search results'
         topRef={resultsRef}
         amount={amount}
       >
-        {articles.slice(0, Number(amount)).map((article) => (
-          <ResultArticleCard data={article} key={Math.random()} />
-        ))}
+        {articles.slice(0, Number(amount)).map((article) => {
+          let isSaved = false
+          if (signedIn) {
+            isSaved = savedArticles.some(
+              (savedArticle) => savedArticle.link === article.url,
+            )
+          }
+          return (
+            <ResultArticleCard
+              isSaved={isSaved}
+              data={article}
+              key={Math.random()}
+            />
+          )
+        })}
       </ArticleGalleryLayout>
     </>
   ) : (
@@ -103,10 +191,43 @@ export default function SearchResults() {
   )
 }
 
-export function ResultArticleCard({ data }: { data: Article }) {
+export function ResultArticleCard({
+  data,
+  isSaved,
+}: {
+  data: NewsApiArticle
+  isSaved: boolean
+}) {
+  const [isProccessing, setIsProccessing] = useState(false)
+  const navigation = useNavigation()
+
+  useEffect(() => {
+    navigation.state !== 'idle' && setIsProccessing(true)
+  }, [navigation])
   return (
     <ArticleCard data={data}>
-      <ResultArticleControls article={data} />
+      <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
+        <ArticleControlLayout>
+          <Form method='post'>
+            <input type='hidden' name='article' value={JSON.stringify(data)} />
+            <button
+              type='submit'
+              className={clsx(
+                'h-[26px] w-[26px]', // dimensions
+                'bg-contain', // background
+                {
+                  'bg-[url("/images/bookmark.svg")] hover:bg-[url("/images/bookmark--hover.svg")]':
+                    !isSaved,
+                  ' hover:bg-[url("/images/bookmark--hover.svg")]':
+                    !isSaved && !isProccessing,
+                  'bg-[url("/images/bookmark-active.svg")]': isSaved,
+                },
+              )}
+              disabled={isSaved || isProccessing}
+            ></button>
+          </Form>
+        </ArticleControlLayout>
+      </div>
     </ArticleCard>
   )
 }

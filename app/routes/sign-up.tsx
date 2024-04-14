@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, json, redirect } from '@vercel/remix'
 import invariant from 'tiny-invariant'
-import { createUser } from '~/services/auth.server'
+import { createUserMutation } from '~/services.server/db-api/auth'
 import { getSession, commitSession } from '~/session.server'
 
 export const loader = () => {
@@ -21,7 +21,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     success: signupSuccess,
     response: signupResponse,
     token,
-  } = await createUser({ email, password, name: username })
+  } = await createUserMutation({ email, password, name: username })
 
   if (!signupSuccess) {
     return json({

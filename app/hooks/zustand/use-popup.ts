@@ -1,7 +1,18 @@
 import { create } from 'zustand'
-import { PopupName } from '../../utils/string-unions'
+import { PopupName } from '~/utils/enums'
 
-type Store = typeof initialState & {
+const initialState = {
+  [PopupName.signin]: false,
+  [PopupName.signup]: false,
+  [PopupName.notify]: false,
+  [PopupName.navMenu]: false,
+  [PopupName.confirm]: false,
+  [PopupName.error]: false,
+  errorMessage: '',
+  notifyMessage: '',
+}
+
+type Actions = {
   actions: {
     toggle: (name: PopupName) => void
     redirect: (from: PopupName, to: PopupName) => void
@@ -11,16 +22,7 @@ type Store = typeof initialState & {
   }
 }
 
-const initialState = {
-  'sign-in': false,
-  'sign-up': false,
-  'nav-menu': false,
-  'sign-out': false,
-  error: false,
-  notify: false,
-  errorMessage: '',
-  notifyMessage: '',
-}
+type Store = typeof initialState & Actions
 
 export const usePopupStore = create<Store>((set) => ({
   ...initialState,

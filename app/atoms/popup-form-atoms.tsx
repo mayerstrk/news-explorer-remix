@@ -10,7 +10,7 @@ import {
 } from '~/hooks/zustand/use-popup'
 import { SigninAction } from '~/routes/sign-in'
 import { SignupAction } from '~/routes/sign-up'
-import { PopupName, Route } from '~/utils/string-unions'
+import { PopupName, Route } from '~/utils/enums'
 
 export interface AuthPopupSettings {
   name: PopupName

@@ -69,7 +69,7 @@ function HeaderSearch() {
 
   useEffect(() => {
     if (searchValue === '') {
-      navigate('/home')
+      navigate('/home', { preventScrollReset: true })
     }
   }, [searchValue, navigate])
 
@@ -78,6 +78,7 @@ function HeaderSearch() {
     if (searchValue && searchValue !== searchTerm) {
       navigate('/home/search/' + encodeURIComponent(searchValue), {
         state: { fromSearch: true },
+        preventScrollReset: true,
       })
     }
   }

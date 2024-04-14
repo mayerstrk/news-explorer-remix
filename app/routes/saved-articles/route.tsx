@@ -92,7 +92,9 @@ function Gallery({
   const fetcherData = fetcher.data
 
   useEffect(() => {
-    load(Route.savedArticles)
+    if (!navigation.location?.state.showMore) {
+      load(Route.savedArticles)
+    }
   }, [navigation, load])
 
   useEffect(() => {
@@ -154,29 +156,6 @@ function SavedArticleCard({ data }: { data: LoaderData['articles'][number] }) {
         </div>
       </div>
     </ArticleCard>
-  )
-}
-
-function Loading() {
-  return (
-    <div
-      className={clsx(
-        'flex flex-col items-center align-middle', // display
-        'gap-[24px] py-[40px]', // margin and padding
-      )}
-    >
-      <div
-        className={clsx(
-          'h-[74px] w-[74px]',
-          'bg-[url("/images/Ellipse.svg")] bg-cover',
-        )}
-      ></div>
-      <p
-        className='text-[18px] text-[#b6bcbf]' // typography
-      >
-        Searching for news...
-      </p>
-    </div>
   )
 }
 

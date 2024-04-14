@@ -13,7 +13,7 @@ export function ArticleGalleryLayout({
 }: {
   children: ReactNode
   title: string
-  amount: string
+  amount: number
   topRef: RefObject<HTMLElement>
 }) {
   const navigation = useNavigation()

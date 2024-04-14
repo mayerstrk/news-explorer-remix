@@ -6,6 +6,7 @@ import {
   useFetcher,
   useLoaderData,
   useNavigation,
+  useSearchParams,
 } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -23,7 +24,7 @@ import { ExtractLoaderData } from '~/types/utility-types'
 type LoaderReturnType = Promise<
   TypedResponse<{
     signedIn: boolean
-    amount: string
+    amount: number
     username: string
     articles: DBArticle[]
   }>
@@ -41,9 +42,6 @@ export const loader = async ({
   } = await serverAuthProtectedRoute(request)
 
   // get articles
-  const url = new URL(request.url)
-  const amount = url.searchParams.get('amount') || '12'
-
   const { success, response } = await getSavedArticles(session)
 
   if (!success) {
@@ -54,7 +52,7 @@ export const loader = async ({
   return json(
     {
       articles: response.data,
-      amount,
+      amount: response.data.length,
       username,
       signedIn: true,
     },
@@ -65,13 +63,11 @@ export const loader = async ({
 export default function Saved() {
   const { signedIn, username, articles, amount } =
     useLoaderData<typeof loader>()
-  console.log(articles)
-  const realAmount = articles.length
 
   return (
     <>
       <NavBarMain color='black' signedIn={signedIn} username={username} />
-      <SavedArticlesHeader amount={realAmount} username={username} />
+      <SavedArticlesHeader amount={Number(amount)} username={username} />
       <Gallery articles={articles} amount={amount} />
     </>
   )
@@ -90,16 +86,31 @@ function Gallery({
   const fetcher = useFetcher<LoaderData>()
   const load = fetcher.load
   const fetcherData = fetcher.data
+  const [, setSearchParams] = useSearchParams()
+  const locationState = navigation.location?.state
 
   useEffect(() => {
-    if (!navigation.location?.state.showMore) {
+    if (
+      locationState &&
+      !locationState.showMore &&
+      !locationState.fromUpateSearchParam
+    ) {
       load(Route.savedArticles)
     }
-  }, [navigation, load])
+  }, [locationState, load])
 
   useEffect(() => {
     setArticles(fetcherData ? fetcherData.articles : staleArticles)
   }, [fetcherData, staleArticles])
+
+  useEffect(() => {
+    const params = new URLSearchParams()
+    params.set('amount', amount.toString())
+    setSearchParams(params, {
+      preventScrollReset: true,
+      state: { fromUpateSearchParam: true },
+    })
+  }, [amount, setSearchParams])
 
   return (
     <div>

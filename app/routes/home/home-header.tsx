@@ -116,11 +116,7 @@ function HeaderSearch() {
             'h-[56px] w-full rounded-3xl xl:h-[64px]', // dimensions
             'text-[18px] text-white', // typography
             'md:absolute md:right-0 md:w-[160px] xl:w-[168px]', // positioning
-            {
-              'bg-blue-600 hover:bg-[#347EFF] active:bg-[#2A65CC]':
-                isSearchActive,
-              'bg-[#E6E8EB] text-[#B6BCBF]': !isSearchActive,
-            },
+            'bg-blue-600 hover:bg-[#347EFF] active:bg-[#2A65CC]',
           )}
           disabled={!isSearchActive}
         >

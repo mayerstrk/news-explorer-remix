@@ -7,7 +7,7 @@ import {
 } from '@vercel/remix'
 import { Form, useLoaderData, useNavigation } from '@remix-run/react'
 import clsx from 'clsx'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import {
   ArticleCard,
@@ -110,6 +110,7 @@ export const loader = async ({
       amount,
     })
   }
+
   return json({
     signedIn: false,
     articles,
@@ -137,10 +138,11 @@ export const action = async ({
   )
   const article = JSON.parse(serializedArticle)
 
-  const { success } = await saveArticle(article, session)
+  const { success, response } = await saveArticle(article, session)
 
   if (!success) {
     console.error('failed to save article')
+    console.error(response)
     return json({ success: false, message: 'failed' }, { status: 500 })
   }
 
@@ -167,7 +169,7 @@ export default function SearchResults() {
       <ArticleGalleryLayout
         title='Search results'
         topRef={resultsRef}
-        amount={amount}
+        amount={Number(amount)}
       >
         {articles.slice(0, Number(amount)).map((article) => {
           let isSaved = false
@@ -181,6 +183,7 @@ export default function SearchResults() {
               isSaved={isSaved}
               data={article}
               key={Math.random()}
+              signedIn={signedIn}
             />
           )
         })}
@@ -194,9 +197,11 @@ export default function SearchResults() {
 export function ResultArticleCard({
   data,
   isSaved,
+  signedIn,
 }: {
   data: NewsApiArticle
   isSaved: boolean
+  signedIn: boolean
 }) {
   const navigation = useNavigation()
   const formName = `save-article-${data.title! + Math.floor(Math.random())}` // Ensure data.url is a unique identifier
@@ -224,7 +229,7 @@ export function ResultArticleCard({
                   ? 'bg-[url("/images/bookmark-active.svg")]'
                   : 'bg-[url("/images/bookmark.svg")]',
               )}
-              disabled={isSaved || isProcessingCurrent}
+              disabled={!signedIn || isSaved || isProcessingCurrent}
             ></button>
           </Form>
         </ArticleControlLayout>

@@ -1,7 +1,13 @@
 import { LoaderFunctionArgs, TypedResponse } from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
-import { json, redirect, useLoaderData } from '@remix-run/react'
-import { Suspense, useRef, useState } from 'react'
+import {
+  json,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+} from '@remix-run/react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArticleCard,
   ArticleControlLayout,
@@ -11,7 +17,6 @@ import clsx from 'clsx'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
 import { DBArticle, getSavedArticles } from '~/services.server/db-api/articles'
 import { serverAuthProtectedRoute } from '~/services.server/db-api/auth'
-import invariant from 'tiny-invariant'
 import { Route } from '~/utils/enums'
 import { ExtractLoaderData } from '~/types/utility-types'
 
@@ -73,13 +78,26 @@ export default function Saved() {
 }
 
 function Gallery({
-  articles,
+  articles: staleArticles,
   amount,
 }: {
   articles: LoaderData['articles']
   amount: LoaderData['amount']
 }) {
+  const [articles, setArticles] = useState(staleArticles)
   const resultsRef = useRef<HTMLDivElement>(null)
+  const navigation = useNavigation()
+  const fetcher = useFetcher<LoaderData>()
+  const load = fetcher.load
+  const fetcherData = fetcher.data
+
+  useEffect(() => {
+    load(Route.savedArticles)
+  }, [navigation, load])
+
+  useEffect(() => {
+    setArticles(fetcherData ? fetcherData.articles : staleArticles)
+  }, [fetcherData, staleArticles])
 
   return (
     <div>

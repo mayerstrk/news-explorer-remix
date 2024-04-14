@@ -143,7 +143,7 @@ export function NavItem({
       )}
     >
       <li className='flex h-full items-center justify-start text-start'>
-        <Link onClick={toggle} to={to} prefetch='intent'>
+        <Link onClick={toggle} to={to} prefetch='render'>
           {text}
         </Link>
       </li>

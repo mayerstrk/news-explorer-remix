@@ -7,7 +7,7 @@ import {
 } from '@vercel/remix'
 import { Form, useLoaderData, useNavigation } from '@remix-run/react'
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import {
   ArticleCard,
@@ -15,7 +15,7 @@ import {
   ArticleGalleryLayout,
 } from '~/atoms/article-gallery-atoms'
 
-import { destroySession, getSession } from '~/session.server'
+import { destroySession } from '~/session.server'
 import { getMockArticles } from '~/mock-articles'
 import { franc } from 'franc'
 import {
@@ -198,32 +198,33 @@ export function ResultArticleCard({
   data: NewsApiArticle
   isSaved: boolean
 }) {
-  const [isProccessing, setIsProccessing] = useState(false)
   const navigation = useNavigation()
+  const formName = `save-article-${data.title! + Math.floor(Math.random())}` // Ensure data.url is a unique identifier
 
-  useEffect(() => {
-    navigation.state !== 'idle' && setIsProccessing(true)
-  }, [navigation])
+  // Determine if this specific form is processing
+  const isProcessingCurrent = useMemo(() => {
+    return (
+      navigation.state !== 'idle' &&
+      navigation.formData?.get('formName') === formName
+    )
+  }, [navigation, formName])
+
   return (
     <ArticleCard data={data}>
       <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
         <ArticleControlLayout>
           <Form method='post'>
             <input type='hidden' name='article' value={JSON.stringify(data)} />
+            <input type='hidden' name='formName' value={formName} />
             <button
               type='submit'
               className={clsx(
-                'h-[26px] w-[26px]', // dimensions
-                'bg-contain', // background
-                {
-                  'bg-[url("/images/bookmark.svg")] hover:bg-[url("/images/bookmark--hover.svg")]':
-                    !isSaved,
-                  ' hover:bg-[url("/images/bookmark--hover.svg")]':
-                    !isSaved && !isProccessing,
-                  'bg-[url("/images/bookmark-active.svg")]': isSaved,
-                },
+                'h-[26px] w-[26px] bg-contain', // Base dimensions and background scaling
+                (!isSaved && isProcessingCurrent) || isSaved
+                  ? 'bg-[url("/images/bookmark-active.svg")]'
+                  : 'bg-[url("/images/bookmark.svg")]',
               )}
-              disabled={isSaved || isProccessing}
+              disabled={isSaved || isProcessingCurrent}
             ></button>
           </Form>
         </ArticleControlLayout>

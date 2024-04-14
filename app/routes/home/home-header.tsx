@@ -1,5 +1,5 @@
-import { useLoaderData, useNavigate } from '@remix-run/react'
-import { useEffect } from 'react'
+import { useLoaderData, useLocation, useNavigate } from '@remix-run/react'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { HomeLoader } from './route'
 import HeaderNavPlaceholder from '~/atoms/header-atoms'
 import clsx from 'clsx'
@@ -52,17 +52,39 @@ export default function HomeHeader() {
   )
 }
 
-export function HeaderSearch() {
-  const { searchTerm } = useLoaderData<HomeLoader>()
+function HeaderSearch() {
+  const { searchTerm } = useLoaderData<HomeLoader>() // Assuming this is the initial search term from the loader
+  const [searchValue, setSearchValue] = useState(searchTerm || '')
+  const [isSearchActive, setIsSearchActive] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+
   useEffect(() => {
-    const searchField = document.getElementById('search-term')
-    if (searchField instanceof HTMLInputElement) {
-      searchField.value = searchTerm || ''
-    } else {
-      console.error('failed to select search field')
+    const pathSegments = location.pathname.split('/')
+    const lastSegment = decodeURIComponent(
+      pathSegments[pathSegments.length - 1],
+    )
+    setIsSearchActive(searchValue !== '' && searchValue !== lastSegment)
+  }, [searchValue, location.pathname])
+
+  useEffect(() => {
+    if (searchValue === '') {
+      navigate('/home')
     }
-  }, [searchTerm])
+  }, [searchValue, navigate])
+
+  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (searchValue && searchValue !== searchTerm) {
+      navigate('/home/search/' + encodeURIComponent(searchValue), {
+        state: { fromSearch: true },
+      })
+    }
+  }
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value)
+  }
 
   return (
     <div className='w-full'>
@@ -73,17 +95,7 @@ export function HeaderSearch() {
           'flex flex-col gap-[16px] md:flex-row', // display
           'w-full', // dimensions
         )}
-        onSubmit={(e) => {
-          e.preventDefault()
-          const searchField = document.getElementById('search-term')
-          if (searchField instanceof HTMLInputElement) {
-            navigate('/home/search/' + searchField.value, {
-              state: { fromSearch: true },
-            })
-          } else {
-            console.error('failed to select search field')
-          }
-        }}
+        onSubmit={handleSearchSubmit}
       >
         <input
           name='search-term'
@@ -94,13 +106,8 @@ export function HeaderSearch() {
             'h-[56px] w-full rounded-3xl xl:h-[64px]', // dimensions
             'px-[16px] focus:outline-none md:px-[24px] md:pr-[196px] xl:pr-[208px]', // margin and padding
           )}
-          defaultValue={searchTerm}
-          onChange={(e) => {
-            e.preventDefault()
-            if (e.currentTarget.value === '') {
-              navigate('/home')
-            }
-          }}
+          value={searchValue}
+          onChange={handleInputChange}
         />
         <button
           type='submit'
@@ -108,8 +115,13 @@ export function HeaderSearch() {
             'h-[56px] w-full rounded-3xl xl:h-[64px]', // dimensions
             'text-[18px] text-white', // typography
             'md:absolute md:right-0 md:w-[160px] xl:w-[168px]', // positioning
-            'bg-blue-600 hover:bg-[#347EFF] active:bg-[#2A65CC] ',
+            {
+              'bg-blue-600 hover:bg-[#347EFF] active:bg-[#2A65CC]':
+                isSearchActive,
+              'bg-[#E6E8EB] text-[#B6BCBF]': !isSearchActive,
+            },
           )}
+          disabled={!isSearchActive}
         >
           Search
         </button>

@@ -115,7 +115,7 @@ export function ArticleGalleryLayout({
                   'hover:bg-[#E8E8E8]', // hover
                   'flex items-center justify-center',
                 )}
-                to={`?amount=${Number(amountParam) + 6}`}
+                to={`?amount=${Number(amountParam) + (6 - (Number(amountParam) % 6))}`}
                 type='button'
                 state={{ showMore: true }}
               >

@@ -27,6 +27,7 @@ type LoaderReturnType = Promise<
     amount: number
     username: string
     articles: DBArticle[]
+    keywords: string[]
   }>
 >
 type LoaderData = ExtractLoaderData<LoaderReturnType>
@@ -53,6 +54,7 @@ export const loader = async ({
     {
       articles: response.data,
       amount: response.data.length,
+      keywords: response.data.map((article) => article.keyword),
       username,
       signedIn: true,
     },
@@ -61,13 +63,17 @@ export const loader = async ({
 }
 
 export default function Saved() {
-  const { signedIn, username, articles, amount } =
+  const { signedIn, username, articles, amount, keywords } =
     useLoaderData<typeof loader>()
 
   return (
     <>
       <NavBarMain color='black' signedIn={signedIn} username={username} />
-      <SavedArticlesHeader amount={Number(amount)} username={username} />
+      <SavedArticlesHeader
+        keywords={keywords}
+        amount={Number(amount)}
+        username={username}
+      />
       <Gallery articles={articles} amount={amount} />
     </>
   )

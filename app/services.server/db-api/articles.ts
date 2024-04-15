@@ -1,9 +1,6 @@
-import { extractKeywords } from '../utils/extract-keyword'
 import { protectedDBRequestBuilder } from '../builders/protected-db-request-builder'
 import { NewsApiArticle } from '../news-api/news-api'
 import { DBApiEndpoint } from '~/utils/enums'
-import { getSession } from '~/session.server'
-import invariant from 'tiny-invariant'
 import { Session } from '@remix-run/node'
 
 export type DBArticle = {
@@ -34,14 +31,14 @@ export const saveArticle = async (
   article: NewsApiArticle,
   session: Session,
 ) => {
-  const transformed = {
-    keyword: extractKeywords(article.title),
-    title: article.title,
-    text: article.content,
+  const transformed: Partial<DBArticle> = {
+    keyword: article.source.name || 'something',
+    title: article.title || 'something',
+    text: article.content || 'something',
     date: new Date().toISOString().split('T')[0],
-    source: article.source.name,
-    link: article.url,
-    image: article.urlToImage,
+    source: article.source.name || 'somthing',
+    link: article.url || 'not found',
+    image: article.urlToImage || 'not found',
   }
 
   const query = protectedDBRequestBuilder<DBArticle, TransformedArticle>(

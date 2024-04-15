@@ -8,11 +8,13 @@ import { NewsApiArticle } from '~/services.server/news-api/news-api'
 export function ArticleGalleryLayout({
   children,
   title,
+  amountParam,
   amount,
   topRef,
 }: {
   children: ReactNode
   title: string
+  amountParam: number
   amount: number
   topRef: RefObject<HTMLElement>
 }) {
@@ -101,23 +103,26 @@ export function ArticleGalleryLayout({
             )}
           >
             {navigation.location?.state?.showMore && <Loading />}
-            <Link
-              preventScrollReset={true}
-              className={clsx(
-                'h-[56px] w-[288px] md:w-[240px] xl:h-[64px] xl:w-[288px]', // dimensions
-                'rounded-full', // effects
-                'bg-white ', // background
-                'text-[18px] font-medium leading-[24px]', // typography
-                'hover:bg-[#E8E8E8]', // hover
-                'flex items-center justify-center',
-              )}
-              to={`?amount=${Number(amount) + 6}`}
-              type='button'
-              state={{ showMore: true }}
-            >
-              Show More
-            </Link>
-            {Number(amount) > 6 && (
+
+            {amount > amountParam && (
+              <Link
+                preventScrollReset={true}
+                className={clsx(
+                  'h-[56px] w-[288px] md:w-[240px] xl:h-[64px] xl:w-[288px]', // dimensions
+                  'rounded-full', // effects
+                  'bg-white ', // background
+                  'text-[18px] font-medium leading-[24px]', // typography
+                  'hover:bg-[#E8E8E8]', // hover
+                  'flex items-center justify-center',
+                )}
+                to={`?amount=${Number(amountParam) + 6}`}
+                type='button'
+                state={{ showMore: true }}
+              >
+                Show More
+              </Link>
+            )}
+            {amountParam > 6 && (
               <button
                 onClick={scrollToTop}
                 className={clsx(

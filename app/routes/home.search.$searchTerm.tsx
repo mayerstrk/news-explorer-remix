@@ -32,13 +32,13 @@ type LoaderReturnType = Promise<
       signedIn: true
       articles: NewsApiArticle[]
       savedArticles: DBArticle[]
-      amount: string
+      amount: number
     }>
   | TypedResponse<{
       signedIn: false
       articles: NewsApiArticle[]
       savedArticles: null
-      amount: string
+      amount: number
     }>
   | TypedResponse<never>
 >
@@ -62,7 +62,7 @@ export const loader = async ({
   // Route specific
   invariant(params.searchTerm, 'Missing searchTerm param')
   const url = new URL(request.url)
-  const amount = url.searchParams.get('amount') || '6'
+  let amount = Number(url.searchParams.get('amount')) || 6
 
   // const currentDate = new Date()
   // const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -92,6 +92,9 @@ export const loader = async ({
       franc(article.content) === 'eng',
   )
 
+  amount = articles.length < amount ? articles.length : amount
+
+  console.log('amount', amount)
   if (authState === AuthState.signedIn) {
     const {
       success: getSavedArticlesSuccess,
@@ -103,6 +106,7 @@ export const loader = async ({
         cause: getSavedArticlesResponse,
       })
     }
+
     return json({
       signedIn: true,
       articles,
@@ -169,9 +173,10 @@ export default function SearchResults() {
       <ArticleGalleryLayout
         title='Search results'
         topRef={resultsRef}
-        amount={Number(amount)}
+        amountParam={amount}
+        amount={articles.length}
       >
-        {articles.slice(0, Number(amount)).map((article) => {
+        {articles.slice(0, amount).map((article) => {
           let isSaved = false
           if (signedIn) {
             isSaved = savedArticles.some(

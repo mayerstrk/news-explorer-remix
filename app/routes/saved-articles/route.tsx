@@ -42,6 +42,9 @@ export const loader = async ({
     },
   } = await serverAuthProtectedRoute(request)
 
+  const url = new URL(request.url)
+  const amount = Number(url.searchParams.get('amount')) || 6
+
   // get articles
   const { success, response } = await getSavedArticles(session)
 
@@ -53,7 +56,7 @@ export const loader = async ({
   return json(
     {
       articles: response.data,
-      amount: response.data.length,
+      amount: response.data.length < amount ? response.data.length : amount,
       keywords: response.data.map((article) => article.keyword),
       username,
       signedIn: true,
@@ -121,7 +124,12 @@ function Gallery({
   return (
     <div>
       {articles.length > 0 ? (
-        <ArticleGalleryLayout title='' topRef={resultsRef} amount={amount}>
+        <ArticleGalleryLayout
+          title=''
+          topRef={resultsRef}
+          amount={articles.length}
+          amountParam={amount}
+        >
           {articles.slice(0, Number(amount)).map((article) => (
             <SavedArticleCard data={article} key={article.article_id} />
           ))}

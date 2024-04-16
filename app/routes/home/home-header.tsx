@@ -1,5 +1,12 @@
 import { Form, useLoaderData, useLocation, useNavigate } from '@remix-run/react'
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import {
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { HomeLoader } from './route'
 import HeaderNavPlaceholder from '~/atoms/header-atoms'
 import clsx from 'clsx'
@@ -58,6 +65,13 @@ function HeaderSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = useCallback(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }
+  }, [])
 
   useEffect(() => {
     const pathSegments = location.pathname.split('/')
@@ -104,9 +118,11 @@ function HeaderSearch() {
       >
         <input
           name='search-term'
+          ref={bottomRef}
           id='search-term'
           type='text'
           placeholder='Topic'
+          onFocus={scrollToBottom}
           className={clsx(
             'h-[56px] w-full rounded-3xl xl:h-[64px]', // dimensions
             'px-[16px] focus:outline-none md:px-[24px] md:pr-[196px] xl:pr-[208px]', // margin and padding

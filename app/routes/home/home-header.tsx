@@ -1,4 +1,4 @@
-import { useLoaderData, useLocation, useNavigate } from '@remix-run/react'
+import { Form, useLoaderData, useLocation, useNavigate } from '@remix-run/react'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { HomeLoader } from './route'
 import HeaderNavPlaceholder from '~/atoms/header-atoms'
@@ -69,7 +69,10 @@ function HeaderSearch() {
 
   useEffect(() => {
     if (searchValue === '') {
-      navigate('/home', { preventScrollReset: true })
+      navigate('/home', {
+        preventScrollReset: true,
+        state: { fromSearch: true },
+      })
     }
   }, [searchValue, navigate])
 
@@ -89,7 +92,7 @@ function HeaderSearch() {
 
   return (
     <div className='w-full'>
-      <form
+      <Form
         id='search-form'
         className={clsx(
           'relative', // positioning
@@ -97,6 +100,7 @@ function HeaderSearch() {
           'w-full', // dimensions
         )}
         onSubmit={handleSearchSubmit}
+        state={{ fromSearch: true }}
       >
         <input
           name='search-term'
@@ -122,7 +126,7 @@ function HeaderSearch() {
         >
           Search
         </button>
-      </form>
+      </Form>
     </div>
   )
 }

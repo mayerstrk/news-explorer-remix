@@ -1,6 +1,6 @@
-import { Link, useNavigation } from '@remix-run/react'
+import { Link, useLocation, useNavigation } from '@remix-run/react'
 import clsx from 'clsx'
-import { ReactNode, RefObject, useCallback, useState } from 'react'
+import { ReactNode, RefObject, useCallback, useEffect, useState } from 'react'
 import { Loading } from '~/routes/home.search.$searchTerm'
 import { DBArticle } from '~/services.server/db-api/articles'
 import { NewsApiArticle } from '~/services.server/news-api/news-api'
@@ -19,10 +19,19 @@ export function ArticleGalleryLayout({
   topRef: RefObject<HTMLElement>
 }) {
   const navigation = useNavigation()
+  const location = useLocation()
 
   const scrollToTop = useCallback(() => {
-    topRef.current?.scrollIntoView({ behavior: 'smooth' })
+    setTimeout(() => {
+      topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
   }, [topRef])
+
+  useEffect(() => {
+    if (location.state?.fromSearch) {
+      scrollToTop()
+    }
+  }, [location, scrollToTop, children])
 
   return navigation.state === 'loading' &&
     navigation.location?.state?.fromSearch ? (

@@ -13,7 +13,7 @@ import {
   useRouteError,
 } from '@remix-run/react'
 import clsx from 'clsx'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import {
   ArticleCard,
@@ -221,8 +221,11 @@ export function ResultArticleCard({
   isSaved: boolean
   signedIn: boolean
 }) {
+  const [isHovered, setIsHovered] = useState(false)
   const navigation = useNavigation()
   const formName = `save-article-${data.title! + Math.floor(Math.random())}` // Ensure data.url is a unique identifier
+
+  useEffect(() => console.log('isHovered changed', isHovered), [isHovered])
 
   // Determine if this specific form is processing
   const isProcessingCurrent = useMemo(() => {
@@ -236,13 +239,19 @@ export function ResultArticleCard({
     <ArticleCard data={data}>
       <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
         <ArticleControlLayout>
-          <Form method='post' className='flex'>
+          <Form
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            method='post'
+            className='flex'
+          >
             <input type='hidden' name='article' value={JSON.stringify(data)} />
             <input type='hidden' name='formName' value={formName} />
             <button
               type='submit'
               className={clsx(
                 'h-[26px] w-[26px] bg-contain', // Base dimensions and background scaling
+                signedIn && 'hover:bg-[url("/images/bookmark--hover.svg")]',
                 (!isSaved && isProcessingCurrent) || isSaved
                   ? 'bg-[url("/images/bookmark-active.svg")]'
                   : 'bg-[url("/images/bookmark.svg")]',
@@ -250,6 +259,13 @@ export function ResultArticleCard({
               disabled={!signedIn || isSaved || isProcessingCurrent}
             ></button>
           </Form>
+          {isHovered && !signedIn && (
+            <div className='w-[159px] md:absolute md:-left-[164px] md:top-0'>
+              <ArticleControlLayout>
+                Sign in to save articles
+              </ArticleControlLayout>
+            </div>
+          )}
         </ArticleControlLayout>
       </div>
     </ArticleCard>

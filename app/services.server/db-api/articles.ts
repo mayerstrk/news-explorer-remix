@@ -32,7 +32,7 @@ export const saveArticle = async (
   session: Session,
 ) => {
   const transformed: TransformedArticle = {
-    keyword: article.source.name || 'something',
+    keyword: article.source.name?.split(' ')[0] || 'something',
     title: article.title || 'something',
     text: article.content || 'something',
     date: new Date().toISOString().split('T')[0],

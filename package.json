@@ -15,6 +15,7 @@
     "@remix-run/react": "^2.8.0",
     "@remix-run/serve": "^2.8.0",
     "@vercel/remix": "^2.8.1-patch.2",
+    "@vercel/speed-insights": "^1.0.10",
     "clsx": "latest",
     "compromise": "^14.13.0",
     "franc": "^6.2.0",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@remix-run/dev": "^2.8.0",
     "@types/franc": "^5.0.3",
+    "@types/node": "^20.12.7",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",

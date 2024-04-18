@@ -1,11 +1,12 @@
 import { LoaderFunctionArgs, TypedResponse } from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
 import {
+  ErrorResponse,
   json,
-  redirect,
   useFetcher,
   useLoaderData,
   useNavigation,
+  useRouteError,
   useSearchParams,
 } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
@@ -41,7 +42,6 @@ export const loader = async ({
       data: { name: username },
     },
   } = await serverAuthProtectedRoute(request)
-
   const url = new URL(request.url)
   const amount = Number(url.searchParams.get('amount')) || 6
 
@@ -50,9 +50,13 @@ export const loader = async ({
 
   if (!success) {
     console.error(response.message, { cause: response })
-    return redirect(Route.home)
+    throw json(
+      { username, signdIn: true, message: response.message },
+      {
+        status: 500,
+      },
+    )
   }
-
   return json(
     {
       articles: response.data,
@@ -219,5 +223,61 @@ function NoArticle() {
         Sorry, but nothing matches your search terms
       </p>
     </section>
+  )
+}
+
+function GalleryErrorComponent() {
+  return (
+    <section
+      className={clsx(
+        'flex flex-col items-center justify-center', // display
+        'gap-[24px] px-[16px] pb-[80px] pt-[86px]', // margin and padding
+        'w-100', //dimensions
+        'bg-[#F5F6F7]',
+      )}
+    >
+      <div
+        className={clsx(
+          'h-[74px] w-[74px]',
+          'bg-[url("/images/not-found_v1.svg")] bg-cover',
+        )}
+      ></div>
+      <p
+        className={clsx(
+          'font-robotoSlab text-[26px] leading-[30px]', // typography
+          'text-[#1A1B22]',
+        )}
+      >
+        Sorry, something went wrong
+      </p>
+      <p
+        className={clsx(
+          'w-[65%] max-w-[356px]',
+          'text-center', // display
+          'text-[18px]', // typography
+          'text-[#b6bcbf]',
+        )}
+      >
+        There may be a connection issue or the server may be down. Pease try
+        again later.
+      </p>
+    </section>
+  )
+}
+
+export function ErrorBoundary() {
+  const {
+    data: { signedIn, username },
+  } = useRouteError() as ErrorResponse
+  return (
+    <>
+      <NavBarMain color='black' signedIn={signedIn} username={username} />
+      <SavedArticlesHeader
+        keywords={['such empty']}
+        amount={0}
+        username={username}
+      />
+      <GalleryErrorComponent />
+    </>
   )
 }

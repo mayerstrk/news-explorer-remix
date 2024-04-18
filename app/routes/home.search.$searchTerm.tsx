@@ -5,7 +5,13 @@ import {
   json,
   redirect,
 } from '@vercel/remix'
-import { Form, useLoaderData, useNavigation } from '@remix-run/react'
+import {
+  Form,
+  isRouteErrorResponse,
+  useLoaderData,
+  useNavigation,
+  useRouteError,
+} from '@remix-run/react'
 import clsx from 'clsx'
 import { useEffect, useMemo, useRef } from 'react'
 import invariant from 'tiny-invariant'
@@ -81,9 +87,16 @@ export const loader = async ({
   const { success, response } = await getMockArticles()
 
   if (!success) {
-    throw new Error(response.status, { cause: response })
+    console.error('Failed to get articles', { cause: response })
+    throw json(
+      {
+        signedIn: true,
+        username: session.data.username,
+        message: 'Failed to get articles',
+      },
+      { status: Number(response.status) },
+    )
   }
-
   const articles = response.articles.filter(
     (article) =>
       article.content !== '[REMOVED]' &&
@@ -223,7 +236,7 @@ export function ResultArticleCard({
     <ArticleCard data={data}>
       <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
         <ArticleControlLayout>
-          <Form method='post'>
+          <Form method='post' className='flex'>
             <input type='hidden' name='article' value={JSON.stringify(data)} />
             <input type='hidden' name='formName' value={formName} />
             <button
@@ -304,4 +317,58 @@ function NoArticle() {
       </p>
     </section>
   )
+}
+
+function ErrorComponent() {
+  return (
+    <section
+      className={clsx(
+        'flex flex-col items-center align-middle', // display
+        'gap-[24px] px-[16px] pb-[80px] pt-[86px]', // margin and padding
+        'bg-[#F5F6F7]',
+      )}
+    >
+      <div
+        className={clsx(
+          'h-[74px] w-[74px]',
+          'bg-[url("/images/not-found_v1.svg")] bg-cover',
+        )}
+      ></div>
+      <p
+        className={clsx(
+          'font-robotoSlab text-[26px] leading-[30px]', // typography
+          'text-[#1A1B22]',
+        )}
+      >
+        Sorry, something went wrong
+      </p>
+      <p
+        className={clsx(
+          'w-[65%] max-w-[356px]',
+          'text-center', // display
+          'text-[18px]', // typography
+          'text-[#b6bcbf]',
+        )}
+      >
+        There may be a connection issue or the server may be down. Please try
+        again later.
+      </p>
+    </section>
+  )
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError()
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div>
+        <h1>Oops</h1>
+        <p>Status: {error.status}</p>
+        <p>{error.data.message}</p>
+      </div>
+    )
+  }
+
+  return <ErrorComponent />
 }

@@ -43,7 +43,7 @@ const useForm = () => {
       const { value, name } = event.target
       setValues({ ...values, [name]: value })
     } else {
-      throw new Error('Sorry')
+      throw new Error('Event target not found', { cause: event })
     }
   }
 

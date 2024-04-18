@@ -1,10 +1,11 @@
 import { env } from 'environment-config'
-import { z } from 'zod'
 import { extractTokenFromSetCookieHeader } from '~/utils/helpers'
 import { HttpMethod } from '~/utils/string-unions'
-import { DBApiRequestHelperResult } from '../types/types'
 import { DBApiErrorSchema } from '../utils/db-api-zod-error-schemas'
 import { DBApiEndpoint } from '~/utils/enums'
+import { json } from '@remix-run/node'
+import { isNodeInternalError } from '../utils/node-zod-error-schemas'
+import { DBApiRequestHelperResult } from '../types/helper-types'
 
 export const requestBuilder = <
   R,
@@ -49,16 +50,29 @@ export const requestBuilder = <
 
       return { success: true, response: parsedResponse, token }
     } catch (caught) {
-      if (caught instanceof z.ZodError) {
-        const validationError = new Error('Response not of expected shape', {
-          cause: caught,
-        })
-        console.error(validationError.message, validationError.cause)
+      let status
+      let message
+
+      switch (true) {
+        case isNodeInternalError(caught) && caught.code === 'ECONNREFUSED':
+          message =
+            'unable to connect to the server. Please check your internet connection or try again later.'
+          status = 408
+          break
+        default:
+          status = 500
+          message = 'an unexpected error occurred'
       }
 
-      throw caught instanceof Error
-        ? caught
-        : new Error('Request failed', { cause: caught })
+      console.error(message, { cause: caught })
+      throw json(
+        {
+          signedIn: true,
+          username: 'user',
+          message: 'Request failed, ' + message,
+        },
+        { status },
+      )
     }
   }
 }

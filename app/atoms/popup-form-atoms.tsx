@@ -154,7 +154,7 @@ export function AuthPopupForm({
             className={clsx(
               'mb-[20px] w-full rounded-2xl p-2 px-4 text-center md:text-sm',
               {
-                ' bg-gray-100 text-gray-400 ': !thereAreErrors,
+                'bg-gray-100 text-gray-400 ': !thereAreErrors,
                 'border-[1px] border-red-400 bg-white text-red-400 ':
                   thereAreErrors,
               },

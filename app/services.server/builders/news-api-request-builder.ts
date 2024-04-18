@@ -2,6 +2,7 @@ import { env } from 'environment-config'
 import { z } from 'zod'
 import { HttpMethod } from '~/utils/string-unions'
 import { NewsApiErrorSchema } from '../utils/db-api-zod-error-schemas'
+import { json } from '@remix-run/node'
 
 type RequestHelperResult<R> =
   | { success: true; response: R }
@@ -59,9 +60,10 @@ export default function requestBuilder<
         console.error(validationError.message, validationError.cause)
       }
 
-      throw caught instanceof Error
-        ? caught
-        : new Error('Request failed', { cause: caught })
+      throw json(
+        { signedIn: 'true', message: 'Request failed', username: 'user' },
+        { status: 500 },
+      )
     }
   }
 }

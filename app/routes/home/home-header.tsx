@@ -65,7 +65,7 @@ function HeaderSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLInputElement>(null)
 
   const scrollToBottom = useCallback(() => {
     if (bottomRef.current) {

@@ -31,7 +31,7 @@ export const saveArticle = async (
   article: NewsApiArticle,
   session: Session,
 ) => {
-  const transformed: Partial<DBArticle> = {
+  const transformed: TransformedArticle = {
     keyword: article.source.name || 'something',
     title: article.title || 'something',
     text: article.content || 'something',

@@ -1,4 +1,5 @@
 import type { LinksFunction, LoaderFunctionArgs } from '@vercel/remix'
+import { SpeedInsights } from '@vercel/speed-insights/remix'
 import {
   Links,
   Meta,
@@ -68,6 +69,7 @@ export default function App() {
         <Footer signedIn={signedIn} />
         <ScrollRestoration />
         <Scripts />
+        <SpeedInsights />
       </body>
     </html>
   )

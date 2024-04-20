@@ -282,7 +282,8 @@ function NoArticle() {
           'text-[#b6bcbf]',
         )}
       >
-        Sorry, but nothing matches your search terms
+        Save your favorite articles to read later! You can save articles by
+        clicking the bookmark icon on your search results.
       </p>
     </section>
   )

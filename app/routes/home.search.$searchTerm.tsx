@@ -33,7 +33,8 @@ import {
   getArticles,
 } from '~/services.server/news-api/news-api'
 import { AuthState, serverAuthPublicRoute } from '~/services.server/db-api/auth'
-import { Route } from '~/utils/enums'
+import { PopupName, Route } from '~/utils/enums'
+import { usePopupToggle } from '~/hooks/zustand/use-popup'
 
 type LoaderReturnType = Promise<
   | TypedResponse<{
@@ -227,6 +228,7 @@ export function ResultArticleCard({
   const [isProcessingCurrent, setIsProccessingCurrent] = useState(false)
   const navigation = useNavigation()
   const formName = `save-article-${data.title! + Math.floor(Math.random())}`
+  const toggleSignInPopup = usePopupToggle(PopupName.signin)
 
   useEffect(() => {
     if (
@@ -241,32 +243,50 @@ export function ResultArticleCard({
     <ArticleCard data={data}>
       <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
         <ArticleControlLayout>
-          <Form
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            method='post'
-            className='flex'
-          >
-            <input type='hidden' name='article' value={JSON.stringify(data)} />
-            <input type='hidden' name='formName' value={formName} />
-            <button
-              type='submit'
-              className={clsx(
-                'h-[26px] w-[26px] bg-contain', // Base dimensions and background scaling
-                signedIn && 'hover:bg-[url("/images/bookmark--hover.svg")]',
-                (!isSaved && isProcessingCurrent) || isSaved
-                  ? 'bg-[url("/images/bookmark-active.svg")]'
-                  : 'bg-[url("/images/bookmark.svg")]',
+          {signedIn ? (
+            <Form
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              method='post'
+              className='flex'
+            >
+              <input
+                type='hidden'
+                name='article'
+                value={JSON.stringify(data)}
+              />
+              <input type='hidden' name='formName' value={formName} />
+              <button
+                type='submit'
+                className={clsx(
+                  'h-[26px] w-[26px] bg-contain',
+                  signedIn && 'hover:bg-[url("/images/bookmark--hover.svg")]',
+                  (!isSaved && isProcessingCurrent) || isSaved
+                    ? 'bg-[url("/images/bookmark-active.svg")]'
+                    : 'bg-[url("/images/bookmark.svg")]',
+                )}
+              ></button>
+            </Form>
+          ) : (
+            <>
+              <button
+                type='button'
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onClick={toggleSignInPopup}
+                className={clsx(
+                  'h-[26px] w-[26px] bg-contain',
+                  'bg-[url("/images/bookmark.svg")] hover:bg-[url("/images/bookmark--hover.svg")] ',
+                )}
+              ></button>
+              {isHovered && (
+                <div className='w-[159px] md:absolute md:-left-[164px] md:top-0'>
+                  <ArticleControlLayout>
+                    Sign in to save articles
+                  </ArticleControlLayout>
+                </div>
               )}
-              disabled={!signedIn || isSaved || isProcessingCurrent}
-            ></button>
-          </Form>
-          {isHovered && !signedIn && (
-            <div className='w-[159px] md:absolute md:-left-[164px] md:top-0'>
-              <ArticleControlLayout>
-                Sign in to save articles
-              </ArticleControlLayout>
-            </div>
+            </>
           )}
         </ArticleControlLayout>
       </div>

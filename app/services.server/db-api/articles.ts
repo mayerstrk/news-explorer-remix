@@ -29,10 +29,11 @@ type TransformedArticle = {
 
 export const saveArticle = async (
   article: NewsApiArticle,
+  keyword: string,
   session: Session,
 ) => {
   const transformed: TransformedArticle = {
-    keyword: article.source.name?.split(' ')[0] || 'No source',
+    keyword,
     title: article.title,
     text: article.content,
     date: new Date().toISOString().split('T')[0],

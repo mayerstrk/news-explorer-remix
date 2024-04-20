@@ -142,6 +142,7 @@ export const loader = async ({
 
 export const action = async ({
   request,
+  params,
 }: ActionFunctionArgs): ActionReturnType => {
   const { session, authState } = await serverAuthPublicRoute(request)
 
@@ -162,7 +163,9 @@ export const action = async ({
   const intent = formData.get('intent')
   switch (intent) {
     case 'save': {
-      const { success, response } = await saveArticle(article, session)
+      const keyword = params.searchTerm
+      invariant(keyword, 'Missing keyword')
+      const { success, response } = await saveArticle(article, keyword, session)
 
       if (!success) {
         console.error('failed to save article')

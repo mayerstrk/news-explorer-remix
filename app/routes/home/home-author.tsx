@@ -21,7 +21,7 @@ export default function HomeAuthor() {
         className={clsx(
           'min-h-[272px] min-w-[272px] md:min-h-[232px] md:min-w-[232px] xl:min-h-[464px] xl:min-w-[464px]', // dimesions
           'bg-[url("/images/IMG_20231104_141259_716.jpg")]  bg-cover', // background
-          'rounded-full', // effects
+          'rounded-full', // effects.
         )}
       ></div>
       <div className='md flex max-w-[600px] flex-col gap-[16px] xl:gap-[35px] xl:self-start xl:pt-[51px]'>

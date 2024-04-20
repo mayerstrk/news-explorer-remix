@@ -263,7 +263,7 @@ export default function SearchResults() {
             <ResultArticleCard
               isSaved={isSaved}
               data={article}
-              key={Math.random()}
+              key={article.url}
               signedIn={signedIn}
             />
           )

@@ -38,7 +38,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function App() {
   const { signedIn, userData } = useLoaderData<typeof loader>()
-  console.log('root rendered')
   const username = userData?.username
 
   return (

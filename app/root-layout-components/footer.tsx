@@ -6,11 +6,19 @@ export default function Footer({ signedIn }: { signedIn: boolean }) {
       <nav className='flex w-full justify-between text-[18px] leading-[18px] text-[#1A1B22] md:h-[24px] md:items-center md:justify-end md:gap-[40px] md:py-[21px]'>
         <ul className='flex h-[74px] flex-col items-center gap-[26px] md:flex-row md:gap-[40px]'>
           <li>
-            <Link to='/home'>Home</Link>
+            <Link to='/home' prefetch='render' state={{ fromNav: true }}>
+              Home
+            </Link>
           </li>
           {signedIn && (
             <li>
-              <Link to='/saved-articles'>Saved</Link>
+              <Link
+                to='/saved-articles'
+                prefetch='render'
+                state={{ fromNav: true }}
+              >
+                Saved
+              </Link>
             </li>
           )}
         </ul>

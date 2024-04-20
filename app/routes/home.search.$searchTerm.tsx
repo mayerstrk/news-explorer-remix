@@ -13,7 +13,7 @@ import {
   useRouteError,
 } from '@remix-run/react'
 import clsx from 'clsx'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import {
   ArticleCard,
@@ -29,7 +29,10 @@ import {
   getSavedArticles,
   saveArticle,
 } from '~/services.server/db-api/articles'
-import { NewsApiArticle } from '~/services.server/news-api/news-api'
+import {
+  NewsApiArticle,
+  getArticles,
+} from '~/services.server/news-api/news-api'
 import { AuthState, serverAuthPublicRoute } from '~/services.server/db-api/auth'
 import { Route } from '~/utils/enums'
 
@@ -70,21 +73,21 @@ export const loader = async ({
   const url = new URL(request.url)
   let amount = Number(url.searchParams.get('amount')) || 6
 
-  // const currentDate = new Date()
-  // const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const currentDate = new Date()
+  const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-  // const to = currentDate.toISOString().split('T')[0]
-  // const from = sevenDaysAgo.toISOString().split('T')[0]
-  //
-  // const endpoint =
-  //   `/everything?` +
-  //   `q=${encodeURIComponent(params.searchTerm)}&` + // Ensure the search term is URL-encoded
-  //   `from=${from}&` +
-  //   `to=${to}&` +
-  //   `pageSize=100&` +
-  //   `sortBy=publishedAt`
+  const to = currentDate.toISOString().split('T')[0]
+  const from = sevenDaysAgo.toISOString().split('T')[0]
 
-  const { success, response } = await getMockArticles()
+  const endpoint =
+    `/everything?` +
+    `q=${encodeURIComponent(params.searchTerm)}&` + // Ensure the search term is URL-encoded
+    `from=${from}&` +
+    `to=${to}&` +
+    `pageSize=100&` +
+    `sortBy=publishedAt`
+
+  const { success, response } = await getArticles(endpoint)
 
   if (!success) {
     console.error('Failed to get articles', { cause: response })
@@ -102,7 +105,7 @@ export const loader = async ({
       article.content !== '[REMOVED]' &&
       article.title &&
       franc(article.title) === 'eng' &&
-      franc(article.content) === 'eng',
+      franc(article.content || '') === 'eng',
   )
 
   amount = articles.length < amount ? articles.length : amount
@@ -222,18 +225,18 @@ export function ResultArticleCard({
   signedIn: boolean
 }) {
   const [isHovered, setIsHovered] = useState(false)
+  const [isProcessingCurrent, setIsProccessingCurrent] = useState(false)
   const navigation = useNavigation()
-  const formName = `save-article-${data.title! + Math.floor(Math.random())}` // Ensure data.url is a unique identifier
+  const formName = `save-article-${data.title! + Math.floor(Math.random())}`
 
-  useEffect(() => console.log('isHovered changed', isHovered), [isHovered])
-
-  // Determine if this specific form is processing
-  const isProcessingCurrent = useMemo(() => {
-    return (
+  useEffect(() => {
+    if (
       navigation.state !== 'idle' &&
       navigation.formData?.get('formName') === formName
-    )
-  }, [navigation, formName])
+    ) {
+      setIsProccessingCurrent(true)
+    }
+  }, [navigation.state, navigation.formData, formName, setIsProccessingCurrent])
 
   return (
     <ArticleCard data={data}>

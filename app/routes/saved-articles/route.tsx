@@ -1,7 +1,12 @@
-import { LoaderFunctionArgs, TypedResponse } from '@vercel/remix'
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  TypedResponse,
+} from '@vercel/remix'
 import SavedArticlesHeader from './saved-articles-header'
 import {
   ErrorResponse,
+  Form,
   json,
   useFetcher,
   useLoaderData,
@@ -17,10 +22,15 @@ import {
 } from '~/atoms/article-gallery-atoms'
 import clsx from 'clsx'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
-import { DBArticle, getSavedArticles } from '~/services.server/db-api/articles'
+import {
+  DBArticle,
+  deleteArticle,
+  getSavedArticles,
+} from '~/services.server/db-api/articles'
 import { serverAuthProtectedRoute } from '~/services.server/db-api/auth'
 import { Route } from '~/utils/enums'
 import { ExtractLoaderData } from '~/types/utility-types'
+import invariant from 'tiny-invariant'
 
 type LoaderReturnType = Promise<
   TypedResponse<{
@@ -32,6 +42,10 @@ type LoaderReturnType = Promise<
   }>
 >
 type LoaderData = ExtractLoaderData<LoaderReturnType>
+
+type ActionReturnType = Promise<
+  TypedResponse<{ success: boolean; message: string }>
+>
 
 export const loader = async ({
   request,
@@ -69,61 +83,98 @@ export const loader = async ({
   )
 }
 
-export default function Saved() {
-  const { signedIn, username, articles, amount, keywords } =
-    useLoaderData<typeof loader>()
+export const action = async ({
+  request,
+}: ActionFunctionArgs): ActionReturnType => {
+  const { session } = await serverAuthProtectedRoute(request)
 
-  return (
-    <>
-      <NavBarMain color='black' signedIn={signedIn} username={username} />
-      <SavedArticlesHeader
-        keywords={keywords}
-        amount={Number(amount)}
-        username={username}
-      />
-      <Gallery articles={articles} amount={amount} />
-    </>
+  const formData = await request.formData()
+  const serializedArticleId = formData.get('articleId')
+  console.log(serializedArticleId)
+  invariant(
+    serializedArticleId && typeof serializedArticleId === 'string',
+    'Invalid or missing articleId 1',
+  )
+  const articleId = JSON.parse(serializedArticleId)
+
+  const { success: isDeleteArticleSuccess, response: deleteArticleResponse } =
+    await deleteArticle(articleId, session)
+
+  if (!isDeleteArticleSuccess) {
+    console.error('Failed to delete article')
+    console.error(JSON.stringify(deleteArticleResponse))
+    return json(
+      {
+        success: false,
+        message: deleteArticleResponse.message || 'Failed to delete article',
+      },
+      { status: deleteArticleResponse.status },
+    )
+  }
+
+  console.log('article deleted successfully')
+
+  return json(
+    { success: true, message: 'Article deleted successfully' },
+    { status: 200 },
   )
 }
+export default function Saved() {
+  const {
+    signedIn,
+    username,
+    articles: loaderArticles,
+    amount: loaderAmountParam,
+    keywords,
+  } = useLoaderData<typeof loader>()
 
-function Gallery({
-  articles: staleArticles,
-  amount,
-}: {
-  articles: LoaderData['articles']
-  amount: LoaderData['amount']
-}) {
-  const [articles, setArticles] = useState(staleArticles)
-  const resultsRef = useRef<HTMLDivElement>(null)
-  const navigation = useNavigation()
-  const fetcher = useFetcher<LoaderData>()
-  const load = fetcher.load
-  const fetcherData = fetcher.data
+  const location = useNavigation().location
   const [, setSearchParams] = useSearchParams()
-  const locationState = navigation.location?.state
+  const fetcher = useFetcher<LoaderData>()
 
   useEffect(() => {
-    if (
-      locationState &&
-      !locationState.showMore &&
-      !locationState.fromUpateSearchParam
-    ) {
-      load(Route.savedArticles)
+    if (location?.state?.fromNav === true) {
+      fetcher.load(Route.savedArticles)
     }
-  }, [locationState, load])
+  }, [location?.state, fetcher])
 
   useEffect(() => {
-    setArticles(fetcherData ? fetcherData.articles : staleArticles)
-  }, [fetcherData, staleArticles])
+    const articles = fetcher.data?.articles
+      ? fetcher.data.articles
+      : loaderArticles
+    const amount =
+      articles.length < loaderAmountParam ? articles.length : loaderAmountParam
 
-  useEffect(() => {
     const params = new URLSearchParams()
     params.set('amount', amount.toString())
     setSearchParams(params, {
       preventScrollReset: true,
       state: { fromUpateSearchParam: true },
     })
-  }, [amount, setSearchParams])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data, setSearchParams])
+
+  return (
+    <>
+      <NavBarMain color='black' signedIn={signedIn} username={username} />
+      <SavedArticlesHeader
+        keywords={keywords}
+        amount={loaderArticles.length}
+        username={username}
+      />
+      <Gallery articles={loaderArticles} amountParam={loaderAmountParam} />
+    </>
+  )
+}
+
+function Gallery({
+  articles,
+  amountParam,
+}: {
+  articles: LoaderData['articles']
+  amountParam: LoaderData['amount']
+}) {
+  const resultsRef = useRef<HTMLUListElement>(null)
 
   return (
     <div>
@@ -132,9 +183,9 @@ function Gallery({
           title=''
           topRef={resultsRef}
           amount={articles.length}
-          amountParam={amount}
+          amountParam={amountParam}
         >
-          {articles.slice(0, Number(amount)).map((article) => (
+          {articles.slice(0, Number(amountParam)).map((article) => (
             <SavedArticleCard data={article} key={article.article_id} />
           ))}
         </ArticleGalleryLayout>
@@ -146,7 +197,6 @@ function Gallery({
 }
 
 function SavedArticleCard({ data }: { data: LoaderData['articles'][number] }) {
-  const [isSaved, setIsSaved] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
   return (
     <ArticleCard data={data}>
@@ -171,16 +221,28 @@ function SavedArticleCard({ data }: { data: LoaderData['articles'][number] }) {
             </div>
           )}
           <ArticleControlLayout>
-            <button
-              className={clsx(
-                'h-[24px] w-[24px]', // dimensions
-                'bg-[url("/images/trash.svg")]', // background
-                'hover:bg-[url("/images/trash--hover.svg")]', // hover
-              )}
-              onClick={() => setIsSaved(!isSaved)}
+            <Form
+              method='post'
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
-            ></button>
+              className='flex'
+            >
+              <input
+                type='hidden'
+                name='articleId'
+                value={JSON.stringify(data.article_id)}
+              />
+              <button
+                type='submit'
+                className={clsx(
+                  'h-[24px] w-[24px]', // dimensions
+                  'bg-[url("/images/trash.svg")]', // background
+                  'hover:bg-[url("/images/trash--hover.svg")]', // hover
+                )}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              ></button>
+            </Form>
           </ArticleControlLayout>
         </div>
       </div>

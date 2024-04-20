@@ -58,6 +58,7 @@ export const loader = async ({
 export default function Home() {
   const { signedIn, username } = useLoaderData<typeof loader>()
   const navigation = useNavigation()
+  console.log('fromSearch: ', navigation.location?.state?.fromSearch)
 
   return (
     <>

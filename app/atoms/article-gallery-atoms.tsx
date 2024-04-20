@@ -100,7 +100,7 @@ export function ArticleGalleryLayout({
               'mb-[13px] mt-[58px] gap-[10px] md:mb-[32px] md:mt-[32px] xl:mb-[64px] xl:mt-[62px] xl:gap-[16px]', // spacing
               'grid w-fit grid-cols-1 md:grid-cols-3 ', // display
               'rounded-full', // effects
-              ' ', // md
+              'rounded-full', // effects
             )}
           >
             {children}
@@ -124,7 +124,7 @@ export function ArticleGalleryLayout({
                   'hover:bg-[#E8E8E8]', // hover
                   'flex items-center justify-center',
                 )}
-                to={`?amount=${Number(amountParam) + (6 - (Number(amountParam) % 6))}`}
+                to={`?amount=${amount < Number(amountParam) + (6 - (Number(amountParam) % 6)) ? amount : Number(amountParam) + (6 - (Number(amountParam) % 6))}`}
                 type='button'
                 state={{ showMore: true }}
               >

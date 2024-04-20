@@ -32,13 +32,13 @@ export const saveArticle = async (
   session: Session,
 ) => {
   const transformed: TransformedArticle = {
-    keyword: article.source.name?.split(' ')[0] || 'something',
-    title: article.title || 'something',
-    text: article.content || 'something',
+    keyword: article.source.name?.split(' ')[0] || 'No source',
+    title: article.title,
+    text: article.content,
     date: new Date().toISOString().split('T')[0],
-    source: article.source.name || 'somthing',
-    link: article.url || 'not found',
-    image: article.urlToImage || 'not found',
+    source: article.source.name,
+    link: article.url,
+    image: article.urlToImage || '',
   }
 
   const query = protectedDBRequestBuilder<DBArticle, TransformedArticle>(
@@ -52,14 +52,16 @@ export const saveArticle = async (
   return query(transformed)
 }
 
-export const deleteArticle = async (articleId: string, session: Session) =>
-  protectedDBRequestBuilder<DBArticle>(
+export const deleteArticle = async (articleId: string, session: Session) => {
+  console.log('articleId', articleId)
+  return protectedDBRequestBuilder<DBArticle>(
     session,
     ('/articles/' + articleId) as DBApiEndpoint,
     {
       method: 'DELETE',
     },
   )()
+}
 
 export const getSavedArticles = async (session: Session) =>
   protectedDBRequestBuilder<{ data: DBArticle[] }>(session, '/articles')()

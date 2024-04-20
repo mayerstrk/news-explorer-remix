@@ -82,7 +82,7 @@ function HeaderSearch() {
   }, [searchValue, location.pathname])
 
   useEffect(() => {
-    if (searchValue === '') {
+    if (searchValue === '' && location.state?.fromSearch === true) {
       navigate('/home', {
         preventScrollReset: true,
         state: { fromSearch: true },

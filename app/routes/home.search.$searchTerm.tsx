@@ -22,7 +22,6 @@ import {
 } from '~/atoms/article-gallery-atoms'
 
 import { destroySession } from '~/session.server'
-import { getMockArticles } from '~/mock-articles'
 import { franc } from 'franc'
 import {
   DBArticle,
@@ -184,7 +183,7 @@ export default function SearchResults() {
     }
   }, [navigation])
 
-  return articles ? (
+  return articles.length > 0 ? (
     <>
       <ArticleGalleryLayout
         title='Search results'

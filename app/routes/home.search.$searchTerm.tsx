@@ -25,6 +25,7 @@ import { destroySession } from '~/session.server'
 import { franc } from 'franc'
 import {
   DBArticle,
+  deleteArticle,
   getSavedArticles,
   saveArticle,
 } from '~/services.server/db-api/articles'
@@ -151,24 +152,80 @@ export const action = async ({
   }
 
   const formData = await request.formData()
+
   const serializedArticle = formData.get('article')
   invariant(
     serializedArticle && typeof serializedArticle === 'string',
     'Missing or invalid article',
   )
   const article = JSON.parse(serializedArticle)
+  const intent = formData.get('intent')
+  switch (intent) {
+    case 'save': {
+      const { success, response } = await saveArticle(article, session)
 
-  const { success, response } = await saveArticle(article, session)
+      if (!success) {
+        console.error('failed to save article')
+        console.error(response)
+        return json({ success: false, message: 'failed' }, { status: 500 })
+      }
 
-  if (!success) {
-    console.error('failed to save article')
-    console.error(response)
-    return json({ success: false, message: 'failed' }, { status: 500 })
+      console.log('save article success', article)
+
+      return json({ success: true, message: 'success' }, { status: 200 })
+    }
+    case 'delete': {
+      const { success, response } = await getSavedArticles(session)
+      if (!success) {
+        throw json(
+          {
+            signedIn: true,
+            username: session.data.username,
+            message: 'failde to delete article',
+          },
+          { status: 400 },
+        )
+      }
+      const articleId = response.data.find(
+        (responseArticle) => article.url === responseArticle.link,
+      )?.article_id
+
+      invariant(articleId, 'Invalid or missing articleId')
+
+      const {
+        success: isDeleteArticleSuccess,
+        response: deleteArticleResponse,
+      } = await deleteArticle(articleId.toString(), session)
+
+      if (!isDeleteArticleSuccess) {
+        console.error('Failed to delete article')
+        console.error(JSON.stringify(deleteArticleResponse))
+        return json(
+          {
+            success: false,
+            message:
+              deleteArticleResponse.message || 'Failed to delete article',
+          },
+          { status: deleteArticleResponse.status },
+        )
+      }
+
+      return json(
+        { success: true, message: 'Article deleted successfully' },
+        { status: 200 },
+      )
+    }
+    default: {
+      throw json(
+        {
+          signedIn: true,
+          username: session.data.username,
+          message: 'Unexpected action',
+        },
+        { status: 400 },
+      )
+    }
   }
-
-  console.log('save article success', article)
-
-  return json({ success: true, message: 'success' }, { status: 200 })
 }
 
 export default function SearchResults() {
@@ -258,6 +315,8 @@ export function ResultArticleCard({
               <input type='hidden' name='formName' value={formName} />
               <button
                 type='submit'
+                name='intent'
+                value={isSaved ? 'delete' : 'save'}
                 className={clsx(
                   'h-[26px] w-[26px] bg-contain',
                   signedIn && 'hover:bg-[url("/images/bookmark--hover.svg")]',

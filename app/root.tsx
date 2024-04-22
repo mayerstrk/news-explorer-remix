@@ -57,7 +57,7 @@ export default function App() {
         />
       </head>
       {/* gobal styles here */}
-      <body className='relative flex min-h-screen min-w-[320px] flex-col overflow-hidden font-roboto'>
+      <body className='relative flex min-h-screen min-w-[320px] flex-col font-roboto'>
         <NavMobilePopup username={username || ''} signedIn={signedIn} />
         <SignUpPopup />
         <SignInPopup />

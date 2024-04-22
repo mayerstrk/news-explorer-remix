@@ -14,7 +14,7 @@ import {
   useNavigation,
 } from '@remix-run/react'
 import { destroySession } from '~/session.server'
-import { Loading } from '../home.search.$searchTerm'
+import { Loading } from './home.search.$searchTerm'
 import { AuthState, serverAuthPublicRoute } from '~/services.server/db-api/auth'
 import {
   ChangeEvent,
@@ -25,7 +25,6 @@ import {
   useState,
 } from 'react'
 import clsx from 'clsx'
-import HeaderNavPlaceholder from '~/atoms/header-atoms'
 import { usePopupToggle } from '~/hooks/zustand/use-popup'
 import { PopupName } from '~/utils/enums'
 
@@ -286,7 +285,7 @@ export default function Home() {
             'flex flex-col items-center justify-center md:flex-row xl:justify-start', // display
             'mx-auto gap-[24px] px-[16px] pb-[128px] pt-[32px] md:gap-[32px] md:p-[40px] md:pt-[44px] xl:gap-[56px] xl:px-[104px] xl:py-[80px]', // spacing
             'max-w-[1440px] xl:h-auto', // dimensions
-            'bg-gradient-to-b from-[#f5f6f7] via-white to-[#f5f6f7]',
+            'bg-gradient-to-b from-[#f5f6f7] to-white',
             { 'md:h-[354px]': isAboutMeExpanded === false }, // conditional
           )}
         >

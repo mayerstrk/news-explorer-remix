@@ -125,10 +125,6 @@ export function AuthPopupForm({
         'px-[16px] pb-[28px] pt-[16px] md:px-[36px] md:pt-[34px]', // margin and padding
       )}
     >
-      <button
-        className='absolute -right-[46px] -top-[46px] z-50 h-[40px] w-[40px] bg-[url("/images/close.svg")] bg-cover'
-        onClick={toggle}
-      ></button>
       <h2 className='mb-[18px] self-start text-2xl font-bold md:text-[24px]'>
         {settings.title}
       </h2>

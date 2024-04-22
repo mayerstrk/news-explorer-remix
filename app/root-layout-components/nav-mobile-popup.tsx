@@ -38,7 +38,7 @@ export function NavMobilePopup({
 export function NavMobilePopupLayout({ children }: { children: ReactNode }) {
   return (
     <PopupLayout name={PopupName.navMenu}>
-      <div className='z-50 w-full bg-[#1A1B22] pt-[var(--navbar-h)] text-white '>
+      <div className='z-50 w-full bg-indigo-500 pt-[var(--navbar-h)] text-white '>
         {children}
       </div>
     </PopupLayout>

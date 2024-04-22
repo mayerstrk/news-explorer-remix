@@ -9,7 +9,7 @@ import {
   json,
   useLoaderData,
 } from '@remix-run/react'
-import styles from './tailwind.css?url'
+import styles from './main.css?url'
 
 import { NavMobilePopup } from './root-layout-components/nav-mobile-popup'
 import Footer from './root-layout-components/footer'
@@ -57,7 +57,7 @@ export default function App() {
         />
       </head>
       {/* gobal styles here */}
-      <body className='relative flex min-h-screen flex-col font-roboto'>
+      <body className='relative flex min-h-screen min-w-[320px] flex-col overflow-hidden font-roboto'>
         <NavMobilePopup username={username || ''} signedIn={signedIn} />
         <SignUpPopup />
         <SignInPopup />

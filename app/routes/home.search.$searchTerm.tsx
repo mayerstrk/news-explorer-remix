@@ -362,6 +362,7 @@ export function Loading() {
       className={clsx(
         'flex flex-col items-center align-middle', // display
         'gap-[24px] py-[40px]', // margin and padding
+        'bg-gradient-to-b from-[#F5F6F7] via-white to-[#f5f6f7]',
       )}
     >
       <div
@@ -388,7 +389,7 @@ function NoArticle() {
       className={clsx(
         'flex flex-col items-center align-middle', // display
         'gap-[24px] px-[16px] pb-[80px] pt-[86px]', // margin and padding
-        'bg-[#F5F6F7]',
+        'bg-gradient-to-b from-[#F5F6F7] via-white to-[#f5f6f7]',
       )}
     >
       <div
@@ -425,7 +426,7 @@ function ErrorComponent() {
       className={clsx(
         'flex flex-col items-center align-middle', // display
         'gap-[24px] px-[16px] pb-[80px] pt-[86px]', // margin and padding
-        'bg-[#F5F6F7]',
+        'bg-gradient-to-b from-[#F5F6F7] via-white to-[#f5f6f7]',
       )}
     >
       <div

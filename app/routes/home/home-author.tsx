@@ -2,12 +2,6 @@ import clsx from 'clsx'
 import { useState } from 'react'
 
 export default function HomeAuthor() {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  const toggleExpansion = () => {
-    setIsExpanded(!isExpanded)
-  }
-
   return (
     <section
       className={clsx(

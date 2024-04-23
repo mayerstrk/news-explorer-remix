@@ -33,8 +33,8 @@ export function PopupLayout({
   }, [isOpen, handleClickOutside])
 
   return (
-    <div
-      id={name}
+    <dialog
+      id={name + '-popup'}
       className={clsx(
         'fixed inset-0 z-30 flex h-full w-full flex-col items-center justify-start transition-all duration-300 md:justify-center',
         {
@@ -49,6 +49,6 @@ export function PopupLayout({
         ref={overlayRef}
         className='absolute inset-0 w-full flex-grow bg-black opacity-50'
       ></div>
-    </div>
+    </dialog>
   )
 }

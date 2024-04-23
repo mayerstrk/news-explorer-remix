@@ -18,6 +18,7 @@
     "@vercel/speed-insights": "^1.0.10",
     "clsx": "latest",
     "compromise": "^14.13.0",
+    "d3": "^7.9.0",
     "franc": "^6.2.0",
     "isbot": "^4.1.0",
     "postcss": "^8.4.38",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@remix-run/dev": "^2.8.0",
+    "@types/d3": "^7.4.3",
     "@types/franc": "^5.0.3",
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.20",

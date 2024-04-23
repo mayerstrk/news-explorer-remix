@@ -63,7 +63,7 @@ export default function App() {
         <SignUpPopup />
         <SignInPopup />
         <SignOutPopup />
-        <div className='flex-grow'>
+        <div id='root-outlet' className='flex-grow'>
           <Outlet />
         </div>
         <Footer signedIn={signedIn} />

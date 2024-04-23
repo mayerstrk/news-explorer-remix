@@ -149,10 +149,7 @@ export default function Home() {
           'bg-gradient-to-b from-indigo-400 from-20% via-indigo-300 to-[#f5f6f7] bg-cover bg-center', // background
         )}
       >
-        {/* Network background with lower z-index */}
         <NetworkBackground />
-
-        {/* Navigation bar with higher z-index to ensure it is on top */}
         <nav className='z-10 flex h-16 w-full items-stretch justify-between border-b-2 border-gray-400 bg-transparent px-4 md:h-20 xl:h-24'>
           <div
             className={`flex h-full items-center px-4 text-center font-robotoSlab text-lg font-bold leading-6 text-white md:text-xl md:leading-7 xl:text-2xl xl:leading-8`}

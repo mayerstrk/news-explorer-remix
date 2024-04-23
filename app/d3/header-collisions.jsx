@@ -77,8 +77,10 @@ const NetworkBackground = () => {
   }, [])
 
   return (
-    <svg ref={ref} className={clsx('absolute inset-0 z-0 h-full w-full')} />
+    <svg
+      ref={ref}
+      className={clsx('absolute inset-0 z-0 h-full w-full animate-pulse-slow')}
+    />
   )
 }
-
 export default NetworkBackground

@@ -7,20 +7,16 @@ import {
 } from '@vercel/remix'
 import {
   Form,
+  Link,
   isRouteErrorResponse,
   useLoaderData,
+  useLocation,
   useNavigation,
   useRouteError,
 } from '@remix-run/react'
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
-import {
-  ArticleCard,
-  ArticleControlLayout,
-  ArticleGalleryLayout,
-} from '~/atoms/article-gallery-atoms'
-
 import { destroySession } from '~/session.server'
 import { franc } from 'franc'
 import {
@@ -42,13 +38,13 @@ type LoaderReturnType = Promise<
       signedIn: true
       articles: NewsApiArticle[]
       savedArticles: DBArticle[]
-      amount: number
+      amountParam: number
     }>
   | TypedResponse<{
       signedIn: false
       articles: NewsApiArticle[]
       savedArticles: null
-      amount: number
+      amountParam: number
     }>
   | TypedResponse<never>
 >
@@ -128,7 +124,7 @@ export const loader = async ({
       signedIn: true,
       articles,
       savedArticles: getSavedArticlesResponse.data,
-      amount,
+      amountParam: amount,
     })
   }
 
@@ -136,7 +132,7 @@ export const loader = async ({
     signedIn: false,
     articles,
     savedArticles: null,
-    amount,
+    amountParam: amount,
   })
 }
 
@@ -232,7 +228,7 @@ export const action = async ({
 }
 
 export default function SearchResults() {
-  const { signedIn, articles, savedArticles, amount } =
+  const { signedIn, articles, savedArticles, amountParam } =
     useLoaderData<typeof loader>()
   const resultsRef = useRef<HTMLDivElement>(null)
   const navigation = useNavigation()
@@ -244,38 +240,156 @@ export default function SearchResults() {
     }
   }, [navigation])
 
+  const location = useLocation()
+
+  const scrollToTop = useCallback(() => {
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
+  }, [resultsRef])
+
+  useEffect(() => {
+    if (location.state?.fromSearch) {
+      scrollToTop()
+    }
+  }, [location, scrollToTop])
+
   return articles.length > 0 ? (
     <>
-      <ArticleGalleryLayout
-        title='Search results'
-        topRef={resultsRef}
-        amountParam={amount}
-        amount={articles.length}
-      >
-        {articles.slice(0, amount).map((article) => {
-          let isSaved = false
-          if (signedIn) {
-            isSaved = savedArticles.some(
-              (savedArticle) => savedArticle.link === article.url,
-            )
-          }
-          return (
-            <ResultArticleCard
-              isSaved={isSaved}
-              data={article}
-              key={article.url}
-              signedIn={signedIn}
-            />
-          )
-        })}
-      </ArticleGalleryLayout>
+      {navigation.state === 'loading' &&
+      navigation.location?.state?.fromSearch ? (
+        <Loading />
+      ) : (
+        <>
+          <section
+            id='search-term-gallery'
+            ref={resultsRef}
+            className={clsx(
+              'relative', // positioning
+              'flex flex-col items-center', // display
+              'bg-[#F5F6F7]', // background
+            )}
+          >
+            <button
+              className={clsx(
+                'fixed  bottom-[20px] right-[20px] z-50', // positioning
+                'flex items-center justify-center', // display
+                'h-12 w-12 max-w-12', // dimensions
+                'rounded-full bg-white ', // background
+                'text-sm', // typography
+                'shadow-sm shadow-white md:hidden', // effects
+              )}
+              onClick={scrollToTop}
+            >
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='24'
+                height='24'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                className='lucide lucide-align-vertical-justify-start'
+              >
+                <rect width='14' height='6' x='5' y='16' rx='2' />
+                <rect width='10' height='6' x='7' y='6' rx='2' />
+                <path d='M2 2h20' />
+              </svg>
+            </button>
+            <div
+              className={clsx(
+                'flex flex-col items-center', // display
+                'bg-[#F5F6F7]', // background
+                'px-[16px]', // padding
+                'max-w-[1920px]', // dimensions
+                'md:px-[40px]', // md
+              )}
+            >
+              <h2
+                className={clsx(
+                  'mt-[32px] md:mt-[40px] xl:mt-[80px]', // spacing
+                  'self-start', // positioning
+                  'font-robotoSlab text-[30px] leading-[34px] text-[#1A1B22] xl:text-[40px] xl:leading-[46px]', // typography
+                )}
+              >
+                Search results
+              </h2>
+              <ul
+                className={clsx(
+                  'mb-[13px] mt-[58px] gap-[10px] md:mb-[32px] md:mt-[32px] xl:mb-[64px] xl:mt-[62px] xl:gap-[16px]', // spacing
+                  'grid w-fit grid-cols-1 md:grid-cols-3 ', // display
+                  'rounded-full', // effects
+                  'rounded-full', // effects
+                )}
+              >
+                {articles.slice(0, amountParam).map((article) => {
+                  let isSaved = false
+                  if (signedIn) {
+                    isSaved = savedArticles.some(
+                      (savedArticle) => savedArticle.link === article.url,
+                    )
+                  }
+                  return (
+                    <ResultArticleCard
+                      isSaved={isSaved}
+                      data={article}
+                      key={article.url}
+                      signedIn={signedIn}
+                    />
+                  )
+                })}
+              </ul>
+              <div
+                className={clsx(
+                  'mb-[24px] mt-[8px] md:mb-[40px] md:mt-0 xl:mb-[80px]', // spacing
+                  'flex flex-col items-center', // display
+                )}
+              >
+                {navigation.location?.state?.showMore && <Loading />}
+
+                <Link
+                  preventScrollReset={true}
+                  className={clsx(
+                    'h-[56px] w-[288px] md:w-[240px] xl:h-[64px] xl:w-[288px]', // dimensions
+                    'rounded-full', // effects
+                    'bg-white ', // background
+                    'text-[18px] font-medium leading-[24px]', // typography
+                    'hover:bg-[#E8E8E8]', // hover
+                    'flex items-center justify-center',
+                  )}
+                  to={`?amount=${(Math.ceil(amountParam / 6) + 1) * 6}`}
+                  type='button'
+                  state={{ showMore: true }}
+                >
+                  Show More
+                </Link>
+                {amountParam > 6 && (
+                  <button
+                    onClick={scrollToTop}
+                    className={clsx(
+                      'mt-[12px]', // margin
+                      'text-sm font-medium', // typography
+                      'md:block', // md
+                      'hover:text-gray-600', // hover
+                    )}
+                  >
+                    Back to top
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
     </>
   ) : (
     <NoArticle />
   )
 }
 
-export function ResultArticleCard({
+function ResultArticleCard({
   data,
   isSaved,
   signedIn,
@@ -284,12 +398,17 @@ export function ResultArticleCard({
   isSaved: boolean
   signedIn: boolean
 }) {
+  const [noImage, setNoImage] = useState(false)
+
+  const { urlToImage: imageUrl, title, content } = data
+  const date = data.publishedAt?.split('T')[0]
+  const sourceName = data.source.name
+
   const [isHovered, setIsHovered] = useState(false)
   const [isProcessingCurrent, setIsProccessingCurrent] = useState(false)
   const navigation = useNavigation()
   const formName = `save-article-${data.title! + Math.floor(Math.random())}`
   const toggleSignInPopup = usePopupToggle(PopupName.signin)
-
   useEffect(() => {
     if (
       navigation.state !== 'idle' &&
@@ -298,11 +417,17 @@ export function ResultArticleCard({
       setIsProccessingCurrent(true)
     }
   }, [navigation.state, navigation.formData, formName, setIsProccessingCurrent])
-
   return (
-    <ArticleCard data={data}>
+    <li className='relative mx-auto flex h-[440px] w-full flex-col rounded-lg bg-white shadow-sm shadow-gray-100 md:h-[420px] md:w-[224px] xl:h-[576px] xl:w-[400px]'>
       <div className='absolute right-[16px] top-[16px] md:right-[8px] md:top-[8px] xl:right-[24px] xl:top-[24px]'>
-        <ArticleControlLayout>
+        <div
+          className={clsx(
+            'flex items-center justify-center rounded-lg', // display
+            'bg-white ', // background
+            'p-[8px] ', // margin and padding
+            'text-[14px] font-medium leading-[24px]', // typography
+          )}
+        >
           {signedIn ? (
             <Form
               onMouseEnter={() => setIsHovered(true)}
@@ -343,16 +468,51 @@ export function ResultArticleCard({
               ></button>
               {isHovered && (
                 <div className='w-[159px] md:absolute md:-left-[164px] md:top-0'>
-                  <ArticleControlLayout>
+                  <div
+                    className={clsx(
+                      'flex items-center justify-center rounded-lg', // display
+                      'bg-white ', // background
+                      'p-[8px] ', // margin and padding
+                      'text-[14px] font-medium leading-[24px]', // typography
+                    )}
+                  >
                     Sign in to save articles
-                  </ArticleControlLayout>
+                  </div>
                 </div>
               )}
             </>
           )}
-        </ArticleControlLayout>
+        </div>
       </div>
-    </ArticleCard>
+      {imageUrl && !noImage ? (
+        <img
+          src={imageUrl}
+          alt={title || 'Article image'}
+          className='mb-16px md:-min-h-[150px] min-h-[196px] w-full rounded-t-lg object-cover xl:min-h-[272px]'
+          onError={() => setNoImage(true)}
+        />
+      ) : (
+        <div className='mb-16px md:-min-h-[150px] flex min-h-[196px] w-full items-center justify-center rounded-t-lg bg-pink-300 object-cover p-16 md:p-6 xl:min-h-[272px]'>
+          <p className='truncate text-wrap font-sspro text-sm font-semibold text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.2)]'>
+            {title || 'Article image'}
+          </p>
+        </div>
+      )}
+      <article className='flex flex-grow flex-col overflow-hidden p-[16px]'>
+        <p className='mb-[10px] font-sspro text-[18px] leading-[24px] text-[#b6bcbf] xl:px-[24px] xl:pt-[17px]'>
+          {date}
+        </p>
+        <h2 className='mb-[14px] min-h-[24px] w-full truncate font-robotoSlab text-[22px] leading-[24px] text-[#1A1B22] xl:px-[24px] xl:text-[26px] xl:leading-[30px]'>
+          {title}
+        </h2>
+        <p className='mb-[8px] flex-grow overflow-auto text-wrap p-[16px] text-[16px] leading-[22px] text-[#1A1B22] xl:px-[24px]'>
+          {content}
+        </p>
+        <p className='font-robotoSlab text-[16px] font-bold leading-[20px] text-[#B6BCBF] xl:px-[24px]'>
+          {sourceName?.toUpperCase() || ''}
+        </p>
+      </article>
+    </li>
   )
 }
 

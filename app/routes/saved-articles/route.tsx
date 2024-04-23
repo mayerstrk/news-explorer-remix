@@ -15,11 +15,6 @@ import {
   useSearchParams,
 } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
-import {
-  ArticleCard,
-  ArticleControlLayout,
-  ArticleGalleryLayout,
-} from '~/atoms/article-gallery-atoms'
 import clsx from 'clsx'
 import NavBarMain from '~/root-layout-components/nav-bar-main'
 import {

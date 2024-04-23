@@ -27,7 +27,7 @@ import {
 import clsx from 'clsx'
 import { usePopupToggle } from '~/hooks/zustand/use-popup'
 import { PopupName } from '~/utils/enums'
-import CollisionsAnimation from '../d3/header-collisions'
+import NetworkBackground from '../d3/header-collisions'
 
 type LoaderReturnType = Promise<
   TypedResponse<
@@ -146,11 +146,14 @@ export default function Home() {
         className={clsx(
           'relative flex w-full flex-col items-center', // display
           'h-[70vh] max-h-[450px] md:h-fit md:max-h-[50vh]', // dimensions
-          ' bg-gradient-to-b from-indigo-400 from-20% via-indigo-300 to-[#f5f6f7] bg-cover bg-center', // background
+          'bg-gradient-to-b from-indigo-400 from-20% via-indigo-300 to-[#f5f6f7] bg-cover bg-center', // background
         )}
       >
-        <CollisionsAnimation />
-        <nav className='flex h-16 w-full items-stretch justify-between border-b-2 border-gray-400 bg-transparent px-4 md:h-20 xl:h-24'>
+        {/* Network background with lower z-index */}
+        <NetworkBackground />
+
+        {/* Navigation bar with higher z-index to ensure it is on top */}
+        <nav className='z-10 flex h-16 w-full items-stretch justify-between border-b-2 border-gray-400 bg-transparent px-4 md:h-20 xl:h-24'>
           <div
             className={`flex h-full items-center px-4 text-center font-robotoSlab text-lg font-bold leading-6 text-white md:text-xl md:leading-7 xl:text-2xl xl:leading-8`}
           >

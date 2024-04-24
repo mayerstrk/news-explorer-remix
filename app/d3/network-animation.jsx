@@ -1,22 +1,24 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import clsx from 'clsx'
 
 const NetworkBackground = () => {
   const ref = useRef(null)
-  const svgRef = useRef(null) // Create a ref for the SVG element
 
   useEffect(() => {
     const svg = d3.select(ref.current)
-    svgRef.current = svg // Store the svg D3 selection in a ref
-
-    function resize() {
+    const updateDimensions = () => {
       const width = ref.current.clientWidth
       const height = ref.current.clientHeight
+      const radius = Math.min(width, height)
+      const centerX = width / 2
+      const centerY = height / 2
 
-      // Update the center force
-      simulation.force('center', d3.forceCenter(width, height / 2))
-      simulation.alpha(0.5).restart() // Reheat and restart the simulation
+      simulation
+        .force('center', d3.forceCenter(centerX, centerY))
+        .force('radial', d3.forceRadial(radius, centerX, centerY))
+        .alpha(1)
+        .restart()
     }
 
     const nodes = Array.from({ length: 100 }, (_, i) => ({ id: i }))
@@ -32,19 +34,15 @@ const NetworkBackground = () => {
         d3
           .forceLink(links)
           .id((d) => d.id)
-          .distance(50),
+          .distance(30),
       )
-      .force('charge', d3.forceManyBody().strength(-50))
-      .force(
-        'center',
-        d3.forceCenter(ref.current.clientWidth, ref.current.clientHeight / 2),
-      )
-      .force('collision', d3.forceCollide().radius(12))
+      .force('charge', d3.forceManyBody().strength(-85))
+      .on('tick', ticked)
 
     const link = svg
       .append('g')
       .attr('stroke', '#f1f1f1')
-      .attr('stroke-opacity', 0.6)
+      .attr('stroke-opacity', 0.3)
       .selectAll('line')
       .data(links)
       .join('line')
@@ -56,31 +54,34 @@ const NetworkBackground = () => {
       .join('circle')
       .attr('r', 4)
       .attr('fill', '#1e40af')
-      .attr('fill-opacity', 0.5)
+      .attr('fill-opacity', 0.3)
 
-    simulation.on('tick', () => {
+    function ticked() {
       link
         .attr('x1', (d) => d.source.x)
         .attr('y1', (d) => d.source.y)
         .attr('x2', (d) => d.target.x)
         .attr('y2', (d) => d.target.y)
       node.attr('cx', (d) => d.x).attr('cy', (d) => d.y)
-    })
+    }
 
-    // Add resize listener
-    window.addEventListener('resize', resize)
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
 
     return () => {
+      window.removeEventListener('resize', updateDimensions)
       simulation.stop()
-      window.removeEventListener('resize', resize)
     }
   }, [])
 
   return (
     <svg
       ref={ref}
-      className={clsx('absolute inset-0 z-0 h-full w-full animate-pulse-slow')}
+      className={clsx(
+        'absolute inset-0 z-0 h-full w-full animate-spin-slow overflow-visible',
+      )}
     />
   )
 }
+
 export default NetworkBackground

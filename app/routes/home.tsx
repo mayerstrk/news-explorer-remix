@@ -27,7 +27,7 @@ import {
 import clsx from 'clsx'
 import { usePopupToggle } from '~/hooks/zustand/use-popup'
 import { PopupName } from '~/utils/enums'
-import NetworkBackground from '../d3/header-collisions'
+import NetworkBackground from '../d3/network-animation'
 
 type LoaderReturnType = Promise<
   TypedResponse<

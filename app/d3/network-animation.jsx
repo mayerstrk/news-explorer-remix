@@ -10,7 +10,7 @@ const NetworkBackground = () => {
     const adjustNodesForScreenSize = () => {
       const width = window.innerWidth
       if (width > 1024) {
-        setNodeAmount(100) // Large screen
+        setNodeAmount(150) // Large screen
       } else if (width > 768) {
         setNodeAmount(100) // Medium screen
       } else {
@@ -55,11 +55,11 @@ const NetworkBackground = () => {
         'radial',
         d3
           .forceRadial(
-            200,
+            400,
             ref.current.clientWidth / 2,
             ref.current.clientHeight / 2,
           )
-          .strength(0.3),
+          .strength(0.1),
       )
       .on('tick', ticked)
 
@@ -76,7 +76,7 @@ const NetworkBackground = () => {
       .selectAll('circle')
       .data(nodes)
       .join('circle')
-      .attr('r', 5)
+      .attr('r', 3)
       .attr('fill', '#1e40af')
       .attr('fill-opacity', 0.5)
 

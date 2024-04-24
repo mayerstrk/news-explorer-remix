@@ -36,7 +36,7 @@ export function PopupLayout({
     <dialog
       id={name + '-popup'}
       className={clsx(
-        'fixed inset-0 z-30 flex h-full w-full flex-col items-center justify-start transition-all duration-300 md:justify-center',
+        'fixed inset-0 z-30 flex h-full w-full flex-col items-center justify-start bg-transparent transition-all duration-300 md:justify-center',
         {
           'md:hidden': name === 'nav-menu',
           'flex-col opacity-100': isOpen,

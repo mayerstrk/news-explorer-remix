@@ -8,9 +8,9 @@ const NetworkBackground = () => {
   useEffect(() => {
     const svg = d3.select(ref.current)
     const updateDimensions = () => {
-      const width = ref.current.clientWidth
-      const height = ref.current.clientHeight
-      const radius = Math.min(width, height)
+      const width = ref.current.clientWidth * 1.5
+      const height = ref.current.clientHeight * 1.5
+      const radius = Math.min(width, height) * 3
       const centerX = width / 2
       const centerY = height / 2
 
@@ -75,12 +75,12 @@ const NetworkBackground = () => {
   }, [])
 
   return (
-    <svg
-      ref={ref}
-      className={clsx(
-        'absolute inset-0 z-0 h-full w-full animate-spin-slow overflow-visible',
-      )}
-    />
+    <div className='absolute inset-0 z-0 flex h-full w-full items-center justify-center overflow-y-visible'>
+      <svg
+        ref={ref}
+        className='h-1/2 w-1/2 animate-spin-slow overflow-visible'
+      />
+    </div>
   )
 }
 

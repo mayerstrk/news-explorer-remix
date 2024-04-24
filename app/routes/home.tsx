@@ -144,9 +144,7 @@ export default function Home() {
     <>
       <header
         className={clsx(
-          'relative flex w-full flex-col items-center', // display
-          'h-[70vh] max-h-[450px] md:h-fit md:max-h-[50vh]', // dimensions
-          'bg-gradient-to-b from-indigo-400 from-20% via-indigo-300 to-[#f5f6f7] bg-cover bg-center', // background
+          'relative flex h-fit w-full  flex-col items-center bg-gradient-to-b from-indigo-400 from-20% via-indigo-300 to-[#f5f6f7] bg-cover', // background
         )}
       >
         <NetworkBackground />

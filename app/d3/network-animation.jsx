@@ -1,43 +1,40 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
 
 const NetworkBackground = () => {
   const ref = useRef(null)
+  const [nodeAmount, setNodeAmount] = useState(null) // Will be set based on screen size
 
   useEffect(() => {
+    // Setup function to determine screen size and adjust node amounts
+    const adjustNodesForScreenSize = () => {
+      const width = window.innerWidth
+      if (width > 1024) {
+        setNodeAmount(100) // Large screen
+      } else if (width > 768) {
+        setNodeAmount(100) // Medium screen
+      } else {
+        setNodeAmount(70) // Small screen
+      }
+    }
+
+    adjustNodesForScreenSize() // Check initially on client side
+
+    window.addEventListener('resize', adjustNodesForScreenSize)
+
+    return () => window.removeEventListener('resize', adjustNodesForScreenSize)
+  }, [])
+
+  useEffect(() => {
+    if (nodeAmount === null) {
+      return // Do nothing if nodeAmount hasn't been determined yet
+    }
+
     const svg = d3.select(ref.current)
-    let currentChargeStrength = -200 // Default strength
+    const { nodes, links } = generateNodesAndLinks(nodeAmount)
 
-    const updateChargeStrength = (width) => {
-      const newStrength = -80 - (800 - Math.min(width, 800)) / 10
-      currentChargeStrength = newStrength
-      simulation.force('charge').strength(newStrength)
-    }
-
-    const updateDimensions = () => {
-      const width = ref.current.clientWidth
-      const height = ref.current.clientHeight
-      const radius = Math.min(width, height)
-      const centerX = width / 2
-      const centerY = height / 2
-
-      updateChargeStrength(width) // Update charge strength based on new width
-
-      simulation
-        .force('center', d3.forceCenter(centerX, centerY))
-        .force('radial', d3.forceRadial(radius, centerX, centerY))
-        .alpha(1)
-        .restart()
-    }
-
-    const nodeAmount = 100
-    const nodes = Array.from({ length: nodeAmount }, (_, i) => ({ id: i }))
-    const links = Array.from({ length: nodeAmount * 3 }, () => ({
-      source: Math.floor(Math.random() * nodeAmount),
-      target: Math.floor(Math.random() * nodeAmount),
-    }))
-
-    const simulation = d3
+    // Create and update simulation
+    let simulation = d3
       .forceSimulation(nodes)
       .force(
         'link',
@@ -46,24 +43,42 @@ const NetworkBackground = () => {
           .id((d) => d.id)
           .distance(30),
       )
-      .force('charge', d3.forceManyBody().strength(currentChargeStrength))
+      .force('charge', d3.forceManyBody().strength(-40))
+      .force(
+        'center',
+        d3.forceCenter(
+          ref.current.clientWidth / 2,
+          ref.current.clientHeight / 2,
+        ),
+      )
+      .force(
+        'radial',
+        d3
+          .forceRadial(
+            200,
+            ref.current.clientWidth / 2,
+            ref.current.clientHeight / 2,
+          )
+          .strength(0.3),
+      )
       .on('tick', ticked)
 
+    // Define and update link elements
     const link = svg
-      .append('g')
-      .attr('stroke', '#f1f1f1')
-      .attr('stroke-opacity', 0.3)
       .selectAll('line')
       .data(links)
       .join('line')
+      .attr('stroke', '#f1f1f1')
+      .attr('stroke-opacity', 0.3)
 
+    // Define and update node elements
     const node = svg
       .selectAll('circle')
       .data(nodes)
       .join('circle')
-      .attr('r', 4)
+      .attr('r', 5)
       .attr('fill', '#1e40af')
-      .attr('fill-opacity', 0.2)
+      .attr('fill-opacity', 0.5)
 
     function ticked() {
       link
@@ -74,14 +89,20 @@ const NetworkBackground = () => {
       node.attr('cx', (d) => d.x).attr('cy', (d) => d.y)
     }
 
-    updateDimensions()
-    window.addEventListener('resize', updateDimensions)
-
     return () => {
-      window.removeEventListener('resize', updateDimensions)
       simulation.stop()
     }
-  }, [])
+  }, [nodeAmount]) // Dependency on nodeAmount ensures re-render only when node amount changes
+
+  // Helper function to generate nodes and links
+  function generateNodesAndLinks(nodeCount) {
+    const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: i }))
+    const links = Array.from({ length: nodeCount * 2 }, () => ({
+      source: Math.floor(Math.random() * nodeCount),
+      target: Math.floor(Math.random() * nodeCount),
+    }))
+    return { nodes, links }
+  }
 
   return (
     <div className='absolute inset-0 z-0 flex h-full w-full items-center justify-center overflow-y-visible'>

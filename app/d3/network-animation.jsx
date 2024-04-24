@@ -1,18 +1,27 @@
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
-import clsx from 'clsx'
 
 const NetworkBackground = () => {
   const ref = useRef(null)
 
   useEffect(() => {
     const svg = d3.select(ref.current)
+    let currentChargeStrength = -200 // Default strength
+
+    const updateChargeStrength = (width) => {
+      const newStrength = -80 - (800 - Math.min(width, 800)) / 10
+      currentChargeStrength = newStrength
+      simulation.force('charge').strength(newStrength)
+    }
+
     const updateDimensions = () => {
-      const width = ref.current.clientWidth * 1.5
-      const height = ref.current.clientHeight * 1.5
-      const radius = Math.min(width, height) * 3
+      const width = ref.current.clientWidth
+      const height = ref.current.clientHeight
+      const radius = Math.min(width, height)
       const centerX = width / 2
       const centerY = height / 2
+
+      updateChargeStrength(width) // Update charge strength based on new width
 
       simulation
         .force('center', d3.forceCenter(centerX, centerY))
@@ -21,10 +30,11 @@ const NetworkBackground = () => {
         .restart()
     }
 
-    const nodes = Array.from({ length: 100 }, (_, i) => ({ id: i }))
-    const links = Array.from({ length: 300 }, () => ({
-      source: Math.floor(Math.random() * 100),
-      target: Math.floor(Math.random() * 100),
+    const nodeAmount = 100
+    const nodes = Array.from({ length: nodeAmount }, (_, i) => ({ id: i }))
+    const links = Array.from({ length: nodeAmount * 3 }, () => ({
+      source: Math.floor(Math.random() * nodeAmount),
+      target: Math.floor(Math.random() * nodeAmount),
     }))
 
     const simulation = d3
@@ -36,7 +46,7 @@ const NetworkBackground = () => {
           .id((d) => d.id)
           .distance(30),
       )
-      .force('charge', d3.forceManyBody().strength(-85))
+      .force('charge', d3.forceManyBody().strength(currentChargeStrength))
       .on('tick', ticked)
 
     const link = svg
@@ -48,13 +58,12 @@ const NetworkBackground = () => {
       .join('line')
 
     const node = svg
-      .append('g')
       .selectAll('circle')
       .data(nodes)
       .join('circle')
       .attr('r', 4)
       .attr('fill', '#1e40af')
-      .attr('fill-opacity', 0.3)
+      .attr('fill-opacity', 0.2)
 
     function ticked() {
       link

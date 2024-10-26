@@ -12,6 +12,7 @@ import {
   useLocation,
   useNavigate,
   useNavigation,
+  useRevalidator,
 } from '@remix-run/react'
 import { destroySession } from '~/session.server'
 import { Loading } from './home.search.$searchTerm'
@@ -44,6 +45,7 @@ export const loader = async ({
   params,
 }: LoaderFunctionArgs): LoaderReturnType => {
   const { session, authState, response } = await serverAuthPublicRoute(request)
+  console.log('loader running. authState', authState)
 
   if (authState === AuthState.notSignedIn) {
     return json(
@@ -83,6 +85,13 @@ export default function Home() {
   const navigate = useNavigate()
   const location = useLocation()
   const navigation = useNavigation()
+  const revalidator = useRevalidator()
+
+  useEffect(() => {
+    if (revalidator.state === 'idle') {
+      revalidator.revalidate()
+    }
+  }, [])
 
   useEffect(() => {
     setIsSearchActive(searchValue !== '' && searchValue !== searchTerm)
@@ -95,7 +104,6 @@ export default function Home() {
         state: { fromSearch: true },
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue, navigate])
 
   const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -144,11 +152,11 @@ export default function Home() {
     <>
       <header
         className={clsx(
-          'relative flex h-fit w-full  flex-col items-center bg-gradient-to-b from-indigo-400 from-20% via-indigo-300 to-[#f5f6f7] bg-cover', // background
+          'relative flex h-fit w-full flex-col items-center bg-gradient-to-b from-indigo-400 from-20% via-indigo-300 to-[#f5f6f7] bg-cover', // background
         )}
       >
         <NetworkBackground />
-        <nav className='z-10 flex h-16 w-full items-stretch justify-between border-b-2 border-gray-400 bg-transparent px-4 md:h-20 xl:h-24'>
+        <nav className='z-10 flex h-16 w-full items-stretch justify-between border-b-2 border-white bg-transparent px-4 md:h-20 xl:h-24'>
           <div
             className={`flex h-full items-center px-4 text-center font-robotoSlab text-lg font-bold leading-6 text-white md:text-xl md:leading-7 xl:text-2xl xl:leading-8`}
           >
@@ -174,9 +182,9 @@ export default function Home() {
                 Saved articles
               </NavLink>
             )}
-            <div className='h-full py-4'>
+            <div className='h-full py-6'>
               <button
-                className={`mx-4 flex h-full items-center justify-center rounded-full border-2 border-white px-4 text-base font-medium leading-6 text-white  md:w-auto md:text-lg md:leading-7 xl:w-auto xl:text-xl`}
+                className={`mx-4 flex h-full items-center justify-center rounded-full border-2 border-white px-4 text-base font-medium leading-6 text-white md:w-auto md:leading-7 xl:w-auto`}
                 onClick={handleAuthButtonClick}
                 style={{ minWidth: '100px' }}
               >
@@ -194,7 +202,7 @@ export default function Home() {
           <div className='flex h-full items-center md:hidden'>
             <button
               type='button'
-              className={`size-8 bg-[url('/images/menu.svg')] bg-cover bg-center `}
+              className={`size-8 bg-[url('/images/menu.svg')] bg-cover bg-center`}
               onClick={toggleMobileNavMenu}
             />
           </div>
@@ -202,7 +210,7 @@ export default function Home() {
         <div
           className={clsx(
             'relative flex grow flex-col items-center justify-between', // display
-            'max-w-[452px]  md:max-w-[452px]  md:px-[4px] xl:max-w-[608px]', // dimensions
+            'max-w-[452px] md:max-w-[452px] md:px-[4px] xl:max-w-[608px]', // dimensions
             'px-[16px] pb-[32px] pt-[30px] md:pb-[48px] md:pt-[38px] xl:py-[80px]', // padding
             'xl:justify-normal xl:gap-[88px]',
           )}
@@ -279,7 +287,8 @@ export default function Home() {
             <Outlet />
           )}
         </section>
-        <section
+
+        {/* {}<section 
           id='home-main-about-me'
           className='w-full bg-gradient-to-b from-[#f5f6f7] from-10% via-white to-white'
         >
@@ -295,7 +304,7 @@ export default function Home() {
             <div
               className={clsx(
                 'min-h-[272px] min-w-[272px] md:min-h-[232px] md:min-w-[232px] xl:min-h-[464px] xl:min-w-[464px]', // dimesions
-                'bg-[url("/images/IMG_20231104_141259_716.jpg")]  bg-cover', // background
+                'bg-[url("/images/IMG_20231104_141259_716.jpg")] bg-cover', // background
                 'rounded-full', // effects.
               )}
             ></div>
@@ -374,7 +383,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-        </section>
+        </section>*/}
       </main>
     </>
   )

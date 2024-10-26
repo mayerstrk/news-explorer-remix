@@ -7,8 +7,9 @@ export const loader = () => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getSession(request.headers.get('Cookie'))
+  console.log('/sign-out action ran')
 
-  return redirect('/saved-articles', {
+  return redirect('/home', {
     headers: {
       'Cache-Control': 'no-store',
       'Set-Cookie': await destroySession(session),

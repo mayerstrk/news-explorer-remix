@@ -32,13 +32,13 @@ export default function NavBarMain({
   }
 
   return (
-    <nav className='absolute top-0 z-10 flex h-16 w-full items-stretch justify-between border-b-2 border-gray-400 px-4 md:h-20 xl:h-24'>
+    <nav className='z-10 flex h-16 w-full items-stretch justify-between border-b-2 border-black bg-transparent px-4 md:h-20 xl:h-24'>
       <div
-        className={`flex h-full items-center px-4 text-center font-robotoSlab text-lg font-bold leading-6 text-${color} md:text-xl md:leading-7 xl:text-2xl xl:leading-8`}
+        className={`flex h-full items-center px-4 text-center font-robotoSlab text-lg font-bold leading-6 text-black md:text-xl md:leading-7 xl:text-2xl xl:leading-8`}
       >
         NewsExplorer
       </div>
-      <div className='flex h-full justify-end'>
+      <div className='hidden h-full md:flex'>
         <NavLink
           to='/home'
           className={({ isActive }) =>
@@ -58,27 +58,27 @@ export default function NavBarMain({
             Saved articles
           </NavLink>
         )}
-        <button
-          className={`mx-4 flex h-full items-center justify-center rounded-full border-2 text-base font-medium leading-6 md:text-lg md:leading-7 xl:text-xl ${color === 'white' ? 'border-white text-white' : 'border-black text-black'} px-4 md:w-auto xl:w-auto`}
-          onClick={handleAuthButtonClick}
-          style={{ minWidth: '100px' }}
-        >
-          {signedIn ? username : 'Sign in'}
-          {signedIn && (
-            <img
-              src={
-                color === 'white'
-                  ? '/images/logout-white.svg'
-                  : '/images/logout.svg'
-              }
-              alt='Log out'
-              className='ml-2 h-6 w-6'
-            />
-          )}
-        </button>
+        <div className='h-full py-6'>
+          <button
+            className={`mx-4 flex h-full items-center justify-center rounded-full border-2 border-black px-4 text-base font-medium leading-6 text-black md:w-auto md:leading-7 xl:w-auto`}
+            onClick={handleAuthButtonClick}
+            style={{ minWidth: '100px' }}
+          >
+            {signedIn ? username : 'Sign in'}
+            {signedIn && (
+              <img
+                src='/images/logout.svg'
+                alt='Log out'
+                className='ml-2 h-6 w-6'
+              />
+            )}
+          </button>
+        </div>
+      </div>
+      <div className='flex h-full items-center md:hidden'>
         <button
           type='button'
-          className={`h-6 w-6 md:hidden ${color === 'white' ? "bg-[url('/images/menu.svg')]" : "bg-[url('/images/menu-black.svg')]"} bg-center bg-no-repeat`}
+          className={`size-8 bg-[url('/images/menu.svg')] bg-cover bg-center`}
           onClick={toggleMobileNavMenu}
         />
       </div>

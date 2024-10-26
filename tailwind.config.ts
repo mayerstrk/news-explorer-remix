@@ -11,7 +11,7 @@ export default {
     },
     extend: {
       animation: {
-        'spin-slow': 'spin 50s cubic-bezier(0.42, 0, 0.58, 1) infinite', // Define a slow spin animation
+        'spin-slow': 'spin 60s cubic-bezier(0.42, 0, 0.58, 1) infinite', // Define a slow spin animation
       },
     },
   },

@@ -1,4 +1,4 @@
-import { useFetcher } from '@remix-run/react'
+import { useFetcher, Form } from '@remix-run/react'
 import clsx from 'clsx'
 import { useEffect } from 'react'
 import { PopupLayout } from '~/atoms/popup-atoms'
@@ -30,12 +30,12 @@ export default function SignOutPopup() {
           'px-[16px] pb-[28px] pt-[16px] md:px-[36px] md:pt-[34px]', // margin and padding
         )}
       >
-        <fetcher.Form
+        <Form
           action='/sign-out'
           method='POST'
           className='flex flex-col items-center justify-center gap-4'
         >
-          <h2 className=' font-sspro text-lg font-medium'>Are you sure?</h2>
+          <h2 className='font-sspro text-lg font-medium'>Are you sure?</h2>
           <div className='flex gap-6'>
             <button
               type='button'
@@ -55,7 +55,7 @@ export default function SignOutPopup() {
               Yes
             </button>
           </div>
-        </fetcher.Form>
+        </Form>
       </div>
     </PopupLayout>
   )

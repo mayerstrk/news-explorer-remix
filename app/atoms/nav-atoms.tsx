@@ -15,7 +15,7 @@ export default function NavBarLayout({ children }: { children: ReactNode }) {
         'box-border flex items-center justify-between', // display
         'h-[var(--navbar-h)] w-full ', // dimensions
         'px-[16px] md:px-[40px] md:pt-[4px]', // margin and padding
-        'border-b-2 border-gray-400', // effects
+        'border-b-2 border-white', // effects
         'md:h-[var(--navbar-h-md)]', // md
         'xl:h-[var(--navbar-h-xl)]', // xl
       )}
@@ -127,7 +127,7 @@ export function NavItem({
     <div
       className={clsx(
         'box-content', // misc
-        'flex items-center justify-start md:justify-center', // display
+        'flex items-center justify-center', // display
         'h-full w-full ', // dimensions
         'text-[18px] font-medium leading-[56px] md:text-[16px] md:leading-[24px] xl:text-[18px]', // typography
         {
